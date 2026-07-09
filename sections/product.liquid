@@ -89,174 +89,218 @@
   </div>
 
   <div class="pdp__info">
-    {% if origin != blank %}
-      <p class="eyebrow">{{ origin }}</p>
-    {% elsif product.vendor != blank %}
-      <p class="eyebrow">{{ product.vendor }}</p>
-    {% endif %}
+    {% for block in section.blocks %}
+      {% case block.type %}
+        {% when 'vendor' %}
+          {% liquid
+            assign eyebrow_text = block.settings.text
+            if eyebrow_text == blank
+              assign eyebrow_text = origin
+            endif
+            if eyebrow_text == blank
+              assign eyebrow_text = product.vendor
+            endif
+          %}
+          {% if eyebrow_text != blank %}
+            <p class="eyebrow" {{ block.shopify_attributes }}>{{ eyebrow_text }}</p>
+          {% endif %}
 
-    <h1 class="pdp__title">{{ product.title }}</h1>
+        {% when 'title' %}
+          <h1 class="pdp__title" {{ block.shopify_attributes }}>{{ product.title }}</h1>
 
-    {% if subtitle != blank %}
-      <p class="pdp__subtitle">{{ subtitle }}</p>
-    {% endif %}
+        {% when 'subtitle' %}
+          {% liquid
+            assign subtitle_text = block.settings.text
+            if subtitle_text == blank
+              assign subtitle_text = subtitle
+            endif
+          %}
+          {% if subtitle_text != blank %}
+            <p class="pdp__subtitle" {{ block.shopify_attributes }}>{{ subtitle_text }}</p>
+          {% endif %}
 
-    <p class="pdp__price" data-price>{{ current_variant.price | money }}</p>
+        {% when 'price' %}
+          <p class="pdp__price" data-price {{ block.shopify_attributes }}>{{ current_variant.price | money }}</p>
 
-    {% if product.description != blank %}
-      <div class="pdp__description">{{ product.description }}</div>
-    {% endif %}
+        {% when 'description' %}
+          {% if product.description != blank %}
+            <div class="pdp__description" {{ block.shopify_attributes }}>{{ product.description }}</div>
+          {% endif %}
 
-    {% if config_notes.size > 0 %}
-      <p class="meta-caps pdp__label">{{ 'products.tasting_notes' | t }}</p>
-      <div class="pdp__notes">
-        {% for note in config_notes %}
-          <span class="pill pdp__note-pill" style="--note-color: {{ note.color.value | default: 'transparent' }}">
-            {%- if note.icon.value != blank -%}
-              <span aria-hidden="true">{{ note.icon.value }}</span>
-            {%- elsif note.color.value != blank -%}
-              <span class="pdp__note-dot" aria-hidden="true"></span>
-            {%- endif %}
-            {{ note.name.value -}}
-          </span>
-        {% endfor %}
-      </div>
-    {% elsif std_flavors.size > 0 %}
-      <p class="meta-caps pdp__label">{{ 'products.tasting_notes' | t }}</p>
-      <div class="pdp__notes">
-        {% for flavor in std_flavors %}
-          <span class="pill">{{ flavor.label.value }}</span>
-        {% endfor %}
-      </div>
-    {% elsif note_items.size > 0 %}
-      <p class="meta-caps pdp__label">{{ 'products.tasting_notes' | t }}</p>
-      <div class="pdp__notes">
-        {% for note in note_items %}
-          <span class="pill">{{ note | strip }}</span>
-        {% endfor %}
-      </div>
-    {% endif %}
+        {% when 'tasting_notes' %}
+          {% liquid
+            assign override_items = block.settings.notes_override | replace: ', ', '|' | replace: ',', '|' | split: '|'
+          %}
+          {% if override_items.size > 0
+            or config_notes.size > 0
+            or std_flavors.size > 0
+            or note_items.size > 0
+          %}
+            <div {{ block.shopify_attributes }}>
+              <p class="meta-caps pdp__label">{{ block.settings.heading }}</p>
+              <div class="pdp__notes">
+                {% if override_items.size > 0 %}
+                  {% for note in override_items %}
+                    <span class="pill">{{ note | strip }}</span>
+                  {% endfor %}
+                {% elsif config_notes.size > 0 %}
+                  {% for note in config_notes %}
+                    <span
+                      class="pill pdp__note-pill"
+                      style="--note-color: {{ note.color.value | default: 'transparent' }}"
+                    >
+                      {%- if note.icon.value != blank -%}
+                        <span aria-hidden="true">{{ note.icon.value }}</span>
+                      {%- elsif note.color.value != blank -%}
+                        <span class="pdp__note-dot" aria-hidden="true"></span>
+                      {%- endif %}
+                      {{ note.name.value -}}
+                    </span>
+                  {% endfor %}
+                {% elsif std_flavors.size > 0 %}
+                  {% for flavor in std_flavors %}
+                    <span class="pill">{{ flavor.label.value }}</span>
+                  {% endfor %}
+                {% else %}
+                  {% for note in note_items %}
+                    <span class="pill">{{ note | strip }}</span>
+                  {% endfor %}
+                {% endif %}
+              </div>
+            </div>
+          {% endif %}
 
-    {% if process != blank or altitude != blank or harvest != blank or bag_type != blank %}
-      <dl class="pdp__facts">
-        {% if process != blank %}
-          <div class="pdp__fact">
-            <dt>{{ 'products.process' | t }}</dt>
-            <dd>{{ process }}</dd>
-          </div>
-        {% endif %}
-        {% if altitude != blank %}
-          <div class="pdp__fact">
-            <dt>{{ 'products.altitude' | t }}</dt>
-            <dd>{{ altitude }}</dd>
-          </div>
-        {% endif %}
-        {% if harvest != blank %}
-          <div class="pdp__fact">
-            <dt>{{ 'products.harvest' | t }}</dt>
-            <dd>{{ harvest }}</dd>
-          </div>
-        {% endif %}
-        {% if bag_type != blank %}
-          <div class="pdp__fact">
-            <dt>{{ 'products.packaging' | t }}</dt>
-            <dd>{{ bag_type }}</dd>
-          </div>
-        {% endif %}
-      </dl>
-    {% endif %}
+        {% when 'facts' %}
+          {% if process != blank or altitude != blank or harvest != blank or bag_type != blank %}
+            <dl class="pdp__facts" {{ block.shopify_attributes }}>
+              {% if process != blank %}
+                <div class="pdp__fact">
+                  <dt>{{ 'products.process' | t }}</dt>
+                  <dd>{{ process }}</dd>
+                </div>
+              {% endif %}
+              {% if altitude != blank %}
+                <div class="pdp__fact">
+                  <dt>{{ 'products.altitude' | t }}</dt>
+                  <dd>{{ altitude }}</dd>
+                </div>
+              {% endif %}
+              {% if harvest != blank %}
+                <div class="pdp__fact">
+                  <dt>{{ 'products.harvest' | t }}</dt>
+                  <dd>{{ harvest }}</dd>
+                </div>
+              {% endif %}
+              {% if bag_type != blank %}
+                <div class="pdp__fact">
+                  <dt>{{ 'products.packaging' | t }}</dt>
+                  <dd>{{ bag_type }}</dd>
+                </div>
+              {% endif %}
+            </dl>
+          {% endif %}
 
-    {% form 'product', product, class: 'pdp__form', data-product-form: '' %}
-      <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-id>
-
-      {% unless product.has_only_default_variant %}
-        {% for option in product.options_with_values %}
-          <fieldset class="pdp__option">
-            <legend class="meta-caps pdp__label">{{ option.name }}</legend>
-            <div class="pdp__option-values">
-              {% for value in option.values %}
-                <label class="pdp__option-value">
-                  <input
-                    type="radio"
-                    name="option-{{ option.position }}"
-                    value="{{ value | escape }}"
-                    data-option-input
-                    data-option-position="{{ option.position }}"
-                    {% if value == option.selected_value %}
-                      checked
-                    {% endif %}
-                  >
-                  <span>{{ value }}</span>
-                </label>
+        {% when 'variant_picker' %}
+          {% unless product.has_only_default_variant %}
+            <div {{ block.shopify_attributes }}>
+              {% for option in product.options_with_values %}
+                <fieldset class="pdp__option">
+                  <legend class="meta-caps pdp__label">{{ option.name }}</legend>
+                  <div class="pdp__option-values">
+                    {% for value in option.values %}
+                      <label class="pdp__option-value">
+                        <input
+                          type="radio"
+                          name="option-{{ option.position }}"
+                          value="{{ value | escape }}"
+                          data-option-input
+                          data-option-position="{{ option.position }}"
+                          {% if value == option.selected_value %}
+                            checked
+                          {% endif %}
+                        >
+                        <span>{{ value }}</span>
+                      </label>
+                    {% endfor %}
+                  </div>
+                </fieldset>
               {% endfor %}
             </div>
-          </fieldset>
-        {% endfor %}
-      {% endunless %}
-
-      <div class="pdp__buy-row">
-        <div class="pdp__quantity">
-          <button type="button" data-qty-minus aria-label="{{ 'products.decrease_quantity' | t }}">–</button>
-          <input
-            type="number"
-            name="quantity"
-            value="1"
-            min="1"
-            inputmode="numeric"
-            aria-label="{{ 'products.quantity' | t }}"
-            data-qty-input
-          >
-          <button type="button" data-qty-plus aria-label="{{ 'products.increase_quantity' | t }}">+</button>
-        </div>
-
-        <button
-          type="submit"
-          class="button pdp__atc"
-          data-atc
-          data-label-add="{{ 'products.add_to_cart' | t }}"
-          data-label-sold-out="{{ 'products.sold_out' | t }}"
-          {% unless current_variant.available %}
-            disabled
           {% endunless %}
-        >
-          {%- if current_variant.available -%}
-            {{ 'products.add_to_cart' | t }} — <span data-atc-price>{{ current_variant.price | money }}</span>
-          {%- else -%}
-            {{ 'products.sold_out' | t }}
-          {%- endif -%}
-        </button>
-      </div>
-    {% endform %}
 
-    {% if section.settings.freshness_note != blank %}
-      <p class="pdp__freshness">{{ section.settings.freshness_note }}</p>
-    {% endif %}
+        {% when 'buy_buttons' %}
+          {% form 'product', product, class: 'pdp__form', data-product-form: '' %}
+            <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-id>
 
-    {% if brewing_methods.size > 0 %}
-      <p class="meta-caps pdp__label">{{ 'products.recommended_brewing' | t }}</p>
-      <div class="pdp__brew-methods">
-        {% for method in brewing_methods %}
-          <div class="pdp__brew-method">
-            <div class="pdp__brew-method-head">
-              {% if method.icon.value != blank %}
-                <span aria-hidden="true">{{ method.icon.value }}</span>
+            <div class="pdp__buy-row" {{ block.shopify_attributes }}>
+              {% if block.settings.show_quantity %}
+                <div class="pdp__quantity">
+                  <button type="button" data-qty-minus aria-label="{{ 'products.decrease_quantity' | t }}">–</button>
+                  <input
+                    type="number"
+                    name="quantity"
+                    value="1"
+                    min="1"
+                    inputmode="numeric"
+                    aria-label="{{ 'products.quantity' | t }}"
+                    data-qty-input
+                  >
+                  <button type="button" data-qty-plus aria-label="{{ 'products.increase_quantity' | t }}">+</button>
+                </div>
               {% endif %}
-              <span class="pdp__brew-method-name">{{ method.name.value }}</span>
-              {% if method.brew_time.value != blank %}
-                <span class="pdp__brew-method-time">{{ method.brew_time.value }}</span>
-              {% endif %}
+
+              <button
+                type="submit"
+                class="button pdp__atc"
+                data-atc
+                data-label-add="{{ 'products.add_to_cart' | t }}"
+                data-label-sold-out="{{ 'products.sold_out' | t }}"
+                {% unless current_variant.available %}
+                  disabled
+                {% endunless %}
+              >
+                {%- if current_variant.available -%}
+                  {{ 'products.add_to_cart' | t }} — <span data-atc-price>{{ current_variant.price | money }}</span>
+                {%- else -%}
+                  {{ 'products.sold_out' | t }}
+                {%- endif -%}
+              </button>
             </div>
-            {% if method.description.value != blank %}
-              <p class="pdp__brew-method-description">{{ method.description.value }}</p>
-            {% endif %}
-          </div>
-        {% endfor %}
-      </div>
-    {% endif %}
+          {% endform %}
 
-    {% if section.blocks.size > 0 %}
-      <div class="pdp__accordions">
-        {% for block in section.blocks %}
+        {% when 'text' %}
+          {% if block.settings.text != blank %}
+            <div class="pdp__text-block {{ block.settings.style }}" {{ block.shopify_attributes }}>
+              {{ block.settings.text }}
+            </div>
+          {% endif %}
+
+        {% when 'brewing' %}
+          {% if brewing_methods.size > 0 %}
+            <div {{ block.shopify_attributes }}>
+              <p class="meta-caps pdp__label">{{ 'products.recommended_brewing' | t }}</p>
+              <div class="pdp__brew-methods">
+                {% for method in brewing_methods %}
+                  <div class="pdp__brew-method">
+                    <div class="pdp__brew-method-head">
+                      {% if method.icon.value != blank %}
+                        <span aria-hidden="true">{{ method.icon.value }}</span>
+                      {% endif %}
+                      <span class="pdp__brew-method-name">{{ method.name.value }}</span>
+                      {% if method.brew_time.value != blank %}
+                        <span class="pdp__brew-method-time">{{ method.brew_time.value }}</span>
+                      {% endif %}
+                    </div>
+                    {% if method.description.value != blank %}
+                      <p class="pdp__brew-method-description">{{ method.description.value }}</p>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+
+        {% when 'accordion' %}
           <details class="pdp__accordion" {{ block.shopify_attributes }}>
             <summary>
               <span>{{ block.settings.title }}</span>
@@ -264,9 +308,8 @@
             </summary>
             <div class="pdp__accordion-content">{{ block.settings.content }}</div>
           </details>
-        {% endfor %}
-      </div>
-    {% endif %}
+      {% endcase %}
+    {% endfor %}
   </div>
 </div>
 
@@ -585,10 +628,19 @@
     font-size: 0.9375rem;
   }
 
-  .pdp__freshness {
+  .pdp__text-block {
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: var(--color-text-muted);
+    margin-top: 1.125rem;
+    max-width: 27.5rem;
+  }
+
+  .pdp__text-block--fine {
     font-size: 0.75rem;
     color: var(--color-text-subtle);
     margin-top: 0.875rem;
+    max-width: none;
   }
 
   .pdp__accordions {
@@ -676,7 +728,7 @@
     const atcButton = form.querySelector('[data-atc]');
     const priceEl = root.querySelector('[data-price]');
 
-    const optionInputs = Array.from(form.querySelectorAll('[data-option-input]'));
+    const optionInputs = Array.from(root.querySelectorAll('[data-option-input]'));
 
     function selectedOptions() {
       const positions = [...new Set(optionInputs.map((i) => i.dataset.optionPosition))].sort();
