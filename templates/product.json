@@ -1,32 +1,36 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "main": {
       "type": "product",
       "blocks": {
-        "vendor": {
-          "type": "vendor",
-          "settings": {}
-        },
         "title": {
           "type": "title",
           "settings": {}
         },
         "subtitle": {
           "type": "subtitle",
-          "settings": {}
+          "settings": {
+            "text": ""
+          }
         },
         "price": {
           "type": "price",
           "settings": {}
         },
-        "description": {
-          "type": "description",
-          "settings": {}
-        },
         "tasting_notes": {
           "type": "tasting_notes",
           "settings": {
-            "heading": "Tasting notes"
+            "heading": "Tasting notes",
+            "notes_override": ""
           }
         },
         "facts": {
@@ -41,7 +45,10 @@
           "type": "preference",
           "settings": {
             "property_name": "Grind",
-            "options": "Whole bean, Ground for drip, Ground for espresso, Ground for French press"
+            "heading": "",
+            "use_grind_metafield": true,
+            "options": "Whole bean, Ground for drip, Ground for espresso, Ground for French press",
+            "note": ""
           }
         },
         "buy_buttons": {
@@ -56,6 +63,10 @@
             "text": "<p>Roasted to order · Ships within 2 business days · Free shipping over $40</p>",
             "style": "pdp__text-block--fine"
           }
+        },
+        "description": {
+          "type": "description",
+          "settings": {}
         },
         "brewing": {
           "type": "brewing",
@@ -84,17 +95,16 @@
         }
       },
       "block_order": [
-        "vendor",
         "title",
         "subtitle",
         "price",
-        "description",
         "tasting_notes",
         "facts",
         "variant_picker",
         "grind",
         "buy_buttons",
         "freshness",
+        "description",
         "brewing",
         "brew_guide",
         "sourcing",
@@ -104,8 +114,13 @@
     },
     "related": {
       "type": "related-products",
-      "settings": {}
+      "settings": {
+        "heading": "From the same table"
+      }
     }
   },
-  "order": ["main", "related"]
+  "order": [
+    "main",
+    "related"
+  ]
 }
