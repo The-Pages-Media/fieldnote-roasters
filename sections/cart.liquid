@@ -1,33 +1,348 @@
 {% comment %}
-  This section is used in the cart template to render /cart page with an
-  overview of the items in customer's cart.
-
-  https://shopify.dev/docs/storefronts/themes/architecture/templates/cart
+  Fieldnote cart page: a quiet, receipt-style list of line items with
+  quantity steppers, a subtotal summary, and checkout. Quantity changes
+  post the standard updates[] form back to /cart (no JS required; JS
+  only auto-submits on change).
 {% endcomment %}
 
-<h1>{{ 'cart.title' | t }}</h1>
+<div class="cart">
+  <header class="cart__head">
+    <p class="eyebrow">{{ 'cart.eyebrow' | t }}</p>
+    <h1 class="cart__title">{{ 'cart.title' | t }}</h1>
+    {% if cart.item_count > 0 %}
+      <p class="meta-caps cart__count">{{ 'cart.item_count' | t: count: cart.item_count }}</p>
+    {% endif %}
+  </header>
 
-<form action="{{ routes.cart_url }}" method="post">
-  <table>
-    {% for item in cart.items %}
-      <tr>
-        <td>
-          {% render 'image', image: item.image, url: item.url %}
-        </td>
-        <td>
-          <p>{{ item.product.title }}</p>
-          {{ 'cart.remove' | t | link_to: item.url_to_remove }}
-        </td>
-        <td>
-          <input type="text" name="updates[]" value="{{ item.quantity }}">
-          <input type="submit" value="{{ 'cart.update' | t }}">
-        </td>
-      </tr>
-    {% endfor %}
-  </table>
+  {% if cart.item_count == 0 %}
+    <div class="cart__empty">
+      <p>{{ 'cart.empty' | t }}</p>
+      <a href="{{ routes.all_products_collection_url }}" class="text-link">{{ 'cart.continue_shopping' | t }}</a>
+    </div>
+  {% else %}
+    <form action="{{ routes.cart_url }}" method="post" class="cart__form" data-cart-form>
+      <button type="submit" hidden tabindex="-1" aria-hidden="true"></button>
 
-  <input type="submit" name="checkout" value="{{ 'cart.checkout' | t }}">
-</form>
+      <ul class="cart__lines" role="list">
+        {% for item in cart.items %}
+          {% liquid
+            assign origin = item.product.metafields.custom.origin.value
+            assign coffee_config = item.product.metafields.custom.coffee_configuration.value
+            if coffee_config
+              if coffee_config.origin.value != blank
+                assign origin = coffee_config.origin.value
+              endif
+            endif
+          %}
+          <li class="cart-line">
+            <a href="{{ item.url }}" class="cart-line__media">
+              {% if item.image %}
+                {{
+                  item.image
+                  | image_url: width: 320, height: 400, crop: 'center'
+                  | image_tag: loading: 'lazy', widths: '160, 320'
+                }}
+              {% else %}
+                {{ 'product-1' | placeholder_svg_tag: 'cart-line__placeholder' }}
+              {% endif %}
+            </a>
+
+            <div class="cart-line__details">
+              <a href="{{ item.url }}" class="cart-line__title">{{ item.product.title | escape }}</a>
+
+              {% capture line_meta %}
+                {%- if origin != blank %}{{ origin }}{% endif -%}
+                {%- unless item.variant.title == 'Default Title' or item.variant.title == blank -%}
+                  {%- if origin != blank %} · {% endif -%}
+                  {{- item.variant.title -}}
+                {%- endunless -%}
+              {% endcapture %}
+              {% if line_meta != blank %}
+                <p class="cart-line__meta">{{ line_meta | strip }}</p>
+              {% endif %}
+
+              <a href="{{ item.url_to_remove }}" class="cart-line__remove">{{ 'cart.remove' | t }}</a>
+            </div>
+
+            <div class="cart-line__controls">
+              <div class="cart-line__qty">
+                <button type="button" data-qty-minus aria-label="{{ 'products.decrease_quantity' | t }}">–</button>
+                <input
+                  type="number"
+                  name="updates[]"
+                  value="{{ item.quantity }}"
+                  min="0"
+                  inputmode="numeric"
+                  aria-label="{{ 'products.quantity' | t }}"
+                  data-qty-input
+                >
+                <button type="button" data-qty-plus aria-label="{{ 'products.increase_quantity' | t }}">+</button>
+              </div>
+
+              <span class="cart-line__price">
+                {% if item.original_line_price != item.final_line_price %}
+                  <s class="cart-line__price-compare">{{ item.original_line_price | money_without_trailing_zeros }}</s>
+                {% endif %}
+                {{ item.final_line_price | money_without_trailing_zeros }}
+              </span>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+
+      <noscript>
+        <button type="submit" class="button button--secondary cart__update">{{ 'cart.update' | t }}</button>
+      </noscript>
+
+      <div class="cart__summary">
+        <div class="cart__subtotal">
+          <span class="cart__subtotal-label">{{ 'cart.subtotal' | t }}</span>
+          <span class="cart__subtotal-amount">{{ cart.total_price | money_without_trailing_zeros }}</span>
+        </div>
+        <p class="cart__taxes-note">{{ 'cart.taxes_note' | t }}</p>
+        <button type="submit" name="checkout" class="button cart__checkout">{{ 'cart.checkout' | t }}</button>
+        <a href="{{ routes.all_products_collection_url }}" class="text-link cart__continue">
+          {{- 'cart.continue_shopping' | t -}}
+        </a>
+      </div>
+    </form>
+  {% endif %}
+</div>
+
+{% stylesheet %}
+  .cart {
+    width: 100%;
+    max-width: 46rem;
+    margin-inline: auto;
+    padding-block-end: 5rem;
+  }
+
+  .cart__head {
+    padding-block: 3.75rem 1.75rem;
+  }
+
+  .cart__title {
+    font-size: clamp(2.125rem, 4.5vw, 2.75rem);
+    margin-top: 0.625rem;
+  }
+
+  .cart__count {
+    margin-top: 0.75rem;
+  }
+
+  .cart__empty {
+    padding-block: 1.5rem 4rem;
+  }
+
+  .cart__empty p {
+    color: var(--color-text-muted);
+    margin-bottom: 1.25rem;
+  }
+
+  .cart__lines {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--color-border-strong);
+  }
+
+  .cart-line {
+    display: grid;
+    grid-template-columns: 5rem 1fr auto;
+    gap: 1.375rem;
+    padding-block: 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .cart-line__media {
+    display: block;
+    aspect-ratio: 4 / 5;
+    border-radius: 4px;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--color-foreground) 6%, var(--color-background));
+  }
+
+  .cart-line__media img,
+  .cart-line__media svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .cart-line__details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+  }
+
+  .cart-line__title {
+    font-family: var(--font-display--family);
+    font-weight: 600;
+    font-size: 1.1875rem;
+    color: var(--color-foreground);
+    text-decoration: none;
+  }
+
+  .cart-line__title:hover {
+    color: var(--color-accent);
+  }
+
+  .cart-line__meta {
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+    color: var(--color-text-subtle);
+    margin-top: 0.1875rem;
+  }
+
+  .cart-line__remove {
+    font-size: 0.6875rem;
+    letter-spacing: var(--tracking-meta);
+    text-transform: uppercase;
+    color: var(--color-text-faint);
+    text-decoration: none;
+    margin-top: auto;
+    padding-top: 0.75rem;
+  }
+
+  .cart-line__remove:hover {
+    color: var(--color-accent);
+  }
+
+  .cart-line__controls {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .cart-line__qty {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--color-border-strong);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .cart-line__qty button {
+    border: none;
+    background: transparent;
+    color: var(--color-text-muted);
+    font-size: 1rem;
+    padding: 0.25rem 0.75rem;
+    cursor: pointer;
+  }
+
+  .cart-line__qty input {
+    width: 2.25rem;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--color-foreground);
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  .cart-line__qty input::-webkit-outer-spin-button,
+  .cart-line__qty input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .cart-line__price {
+    font-size: 0.9375rem;
+  }
+
+  .cart-line__price-compare {
+    color: var(--color-text-faint);
+    margin-inline-end: 0.375rem;
+  }
+
+  .cart__update {
+    margin-top: 1.25rem;
+  }
+
+  .cart__summary {
+    width: min(100%, 22rem);
+    margin-left: auto;
+    padding-top: 1.75rem;
+  }
+
+  .cart__subtotal {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: var(--font-display--family);
+    font-weight: 600;
+    font-size: 1.1875rem;
+  }
+
+  .cart__taxes-note {
+    font-size: 0.8125rem;
+    color: var(--color-text-subtle);
+    margin-top: 0.375rem;
+  }
+
+  .cart__checkout {
+    width: 100%;
+    margin-top: 1.375rem;
+    font-size: 0.9375rem;
+  }
+
+  .cart__continue {
+    display: block;
+    text-align: center;
+    margin-top: 1.125rem;
+  }
+
+  @media (max-width: 30rem) {
+    .cart-line {
+      grid-template-columns: 4rem 1fr;
+      grid-template-areas:
+        'media details'
+        'media controls';
+    }
+
+    .cart-line__media {
+      grid-area: media;
+      align-self: start;
+    }
+
+    .cart-line__details {
+      grid-area: details;
+    }
+
+    .cart-line__controls {
+      grid-area: controls;
+      flex-direction: row;
+      align-items: center;
+      margin-top: 0.75rem;
+    }
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  const form = document.querySelector('[data-cart-form]');
+  if (form) {
+    form.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-qty-minus], [data-qty-plus]');
+      if (!button) return;
+      const input = button.closest('.cart-line__qty').querySelector('[data-qty-input]');
+      const delta = button.hasAttribute('data-qty-plus') ? 1 : -1;
+      input.value = Math.max(0, Number(input.value) + delta);
+      form.requestSubmit();
+    });
+
+    form.addEventListener('change', (event) => {
+      if (event.target.matches('[data-qty-input]')) {
+        form.requestSubmit();
+      }
+    });
+  }
+{% endjavascript %}
 
 {% schema %}
 {

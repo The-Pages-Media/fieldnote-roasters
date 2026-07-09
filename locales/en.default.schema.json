@@ -90,6 +90,7 @@
     "text": "Text"
   },
   "info": {
+    "cta_link_fallback": "Leave blank to link to the first product using this configuration.",
     "dynamic_source_fallback": "Leave blank to automatically use the product's [coffee configuration](https://admin.shopify.com/store/fieldnote-roasters-demo/content/metaobjects/entries/coffee_configuration). Connect a dynamic source to pull from any metafield.",
     "notes_override": "Automatically shows notes from the product's [coffee configuration](https://admin.shopify.com/store/fieldnote-roasters-demo/content/metaobjects/entries/coffee_configuration) unless an override is set here. Comma-separated."
   },

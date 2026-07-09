@@ -18,7 +18,16 @@
     "title": "Cart",
     "title_with_count": "Cart ({{ count }})",
     "update": "Update",
-    "remove": "Remove"
+    "remove": "Remove",
+    "eyebrow": "Your order",
+    "empty": "Your cart is empty.",
+    "continue_shopping": "Continue shopping",
+    "subtotal": "Subtotal",
+    "taxes_note": "Shipping and taxes calculated at checkout.",
+    "item_count": {
+      "one": "{{ count }} item",
+      "other": "{{ count }} items"
+    }
   },
   "customers": {
     "login": {

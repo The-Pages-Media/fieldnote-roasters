@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="{{ request.locale.iso_code }}">
+  <head>
+    {% # Inlined CSS Variables %}
+    {% render 'css-variables' %}
+
+    {% unless settings.type_primary_font.system? %}
+      <link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
+      {{ settings.type_primary_font | font_url | preload_tag: as: 'font', crossorigin: 'anonymous' }}
+    {% endunless %}
+
+    {% # Display font: Zilla Slab, self-hosted in assets and declared in critical.css %}
+    {{ 'zilla-slab-600.woff2' | asset_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }}
+
+    {% # Load and preload the critical CSS %}
+    {{ 'critical.css' | asset_url | stylesheet_tag: preload: true }}
+
+    {% # Social, title, etc. %}
+    {% render 'meta-tags' %}
+
+    {{ content_for_header }}
+
+    {% style %}
+      .landing-header {
+        display: flex;
+        justify-content: center;
+        padding-block: 2.25rem 2rem;
+        border-bottom: 1px solid var(--color-border);
+      }
+
+      .landing-header a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+        color: var(--color-foreground);
+      }
+
+      .landing-header__monogram {
+        position: relative;
+        width: 2.5rem;
+        height: 2.5rem;
+        border: 1.5px solid var(--color-foreground);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-display--family);
+        font-weight: 600;
+        font-size: 1rem;
+        letter-spacing: 0.02em;
+      }
+
+      .landing-header__monogram-dot {
+        position: absolute;
+        bottom: -1px;
+        left: 50%;
+        transform: translate(-50%, 50%);
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--color-accent);
+      }
+
+      .landing-header__wordmark {
+        font-family: var(--font-display--family);
+        font-weight: 600;
+        font-size: 1.125rem;
+        letter-spacing: 0.01em;
+      }
+
+      .landing-main {
+        flex: 1;
+      }
+
+      .landing-footer {
+        margin-top: auto;
+        border-top: 1px solid var(--color-border);
+        padding: 2rem var(--page-margin) 2.25rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.875rem;
+      }
+
+      .landing-footer__links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1.5rem;
+      }
+
+      .landing-footer__links a {
+        font-size: 0.75rem;
+        letter-spacing: 0.04em;
+        text-decoration: none;
+        color: var(--color-text-muted);
+      }
+
+      .landing-footer__links a:hover {
+        color: var(--color-foreground);
+      }
+
+      .landing-footer__copyright {
+        font-size: 0.75rem;
+        color: var(--color-text-subtle);
+      }
+
+      .landing-footer__copyright a {
+        color: var(--color-text-subtle);
+        text-decoration: none;
+      }
+    {% endstyle %}
+  </head>
+
+  <body>
+    {% liquid
+      assign name_words = shop.name | split: ' '
+      assign monogram = ''
+      for word in name_words limit: 2
+        assign initial = word | slice: 0
+        assign monogram = monogram | append: initial
+      endfor
+    %}
+
+    <header class="landing-header">
+      <a href="{{ routes.root_url }}">
+        <span class="landing-header__monogram" aria-hidden="true">
+          {{- monogram | upcase -}}
+          <span class="landing-header__monogram-dot"></span>
+        </span>
+        <span class="landing-header__wordmark">{{ shop.name }}</span>
+      </a>
+    </header>
+
+    <div class="landing-main">
+      {{ content_for_layout }}
+    </div>
+
+    <footer class="landing-footer">
+      <div class="landing-footer__links">
+        {% for policy in shop.policies %}
+          {% if policy != blank %}
+            <a href="{{ policy.url }}">{{ policy.title }}</a>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <p class="landing-footer__copyright">
+        &copy;
+        {{ 'now' | date: '%Y' }}
+        {{ shop.name | link_to: routes.root_url }}
+      </p>
+    </footer>
+  </body>
+</html>
