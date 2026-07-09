@@ -1,0 +1,176 @@
+{% doc %}
+  Renders a Fieldnote product card: 4:5 image, slab title with price,
+  and the documentary metadata rows (origin · process · roast, tasting notes).
+
+  Metadata reads from `custom` namespace metafields (origin, process,
+  roast_level, tasting_notes) and degrades gracefully when they're absent.
+
+  @param {product} product - The product to render
+  @param {boolean} [show_badge] - Show the "New" badge when the product is tagged "new"
+
+  @example
+  {% render 'product-card', product: product %}
+  {% render 'product-card', product: product, show_badge: true %}
+{% enddoc %}
+
+{% liquid
+  assign coffee_config = product.metafields.custom.coffee_configuration.value
+
+  assign origin = product.metafields.custom.origin.value
+  assign process = product.metafields.custom.process.value
+  assign roast = product.metafields.custom.roast_level.value
+
+  if coffee_config
+    if coffee_config.origin.value != blank
+      assign origin = coffee_config.origin.value
+    endif
+    if coffee_config.processing_method.value != blank
+      assign process = coffee_config.processing_method.value
+    endif
+    if coffee_config.roast_level.value != blank
+      assign roast = coffee_config.roast_level.value
+    endif
+  endif
+
+  assign notes = ''
+  if coffee_config.tasting_notes.value.size > 0
+    for note in coffee_config.tasting_notes.value
+      assign notes = notes | append: note.name.value
+      unless forloop.last
+        assign notes = notes | append: ', '
+      endunless
+    endfor
+  else
+    assign notes_mf = product.metafields.custom.tasting_notes
+    if notes_mf.type contains 'list'
+      assign notes = notes_mf.value | join: ', '
+    elsif notes_mf.value != blank
+      assign notes = notes_mf.value
+    endif
+  endif
+
+  assign is_new = false
+  if show_badge
+    if product.tags contains 'new' or product.tags contains 'New'
+      assign is_new = true
+    endif
+  endif
+%}
+
+<div class="product-card">
+  <a href="{{ product.url }}" class="product-card__media">
+    {% if is_new %}
+      <span class="product-card__badge">{{ 'products.badge_new' | t }}</span>
+    {% endif %}
+    {% if product.featured_image %}
+      {{
+        product.featured_image
+        | image_url: width: 800, height: 1000, crop: 'center'
+        | image_tag: loading: 'lazy', widths: '400, 600, 800'
+      }}
+    {% else %}
+      {{ 'product-1' | placeholder_svg_tag: 'product-card__placeholder' }}
+    {% endif %}
+  </a>
+
+  <div class="product-card__heading">
+    <a href="{{ product.url }}" class="product-card__title">{{ product.title | escape }}</a>
+    <span class="product-card__price">
+      {%- if product.price_varies -%}
+        {{ 'products.price_from' | t: price: product.price_min | money_without_trailing_zeros }}
+      {%- else -%}
+        {{ product.price | money_without_trailing_zeros }}
+      {%- endif -%}
+    </span>
+  </div>
+
+  {% capture meta_line %}
+    {%- if origin != blank %}{{ origin }}{% endif -%}
+    {%- if process != blank %} · {{ process }}{% endif -%}
+    {%- if roast != blank %} · {{ roast }}{% endif -%}
+  {% endcapture %}
+
+  {% if meta_line != blank %}
+    <p class="product-card__meta">{{ meta_line | strip }}</p>
+  {% elsif product.vendor != blank %}
+    <p class="product-card__meta">{{ product.vendor }}</p>
+  {% endif %}
+
+  {% if notes != blank %}
+    <p class="product-card__notes">{{ notes }}</p>
+  {% endif %}
+</div>
+
+{% stylesheet %}
+  .product-card__media {
+    position: relative;
+    display: block;
+    aspect-ratio: 4 / 5;
+    border-radius: 4px;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--color-foreground) 6%, var(--color-background));
+  }
+
+  .product-card__media img,
+  .product-card__media svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 400ms ease;
+  }
+
+  .product-card__media:hover img {
+    transform: scale(1.03);
+  }
+
+  .product-card__badge {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 1;
+    font-size: 0.625rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--color-accent);
+    color: var(--color-background);
+    padding: 0.25rem 0.5625rem;
+    border-radius: 2px;
+  }
+
+  .product-card__heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .product-card__title {
+    font-family: var(--font-display--family);
+    font-weight: 600;
+    font-size: 1.1875rem;
+    color: var(--color-foreground);
+    text-decoration: none;
+  }
+
+  .product-card__title:hover {
+    color: var(--color-accent);
+  }
+
+  .product-card__price {
+    font-size: 0.9375rem;
+  }
+
+  .product-card__meta {
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+    color: var(--color-text-subtle);
+    margin-top: 0.1875rem;
+  }
+
+  .product-card__notes {
+    font-size: 0.8125rem;
+    color: var(--color-text-faint);
+    margin-top: 0.3125rem;
+  }
+{% endstylesheet %}

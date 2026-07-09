@@ -1,0 +1,169 @@
+{% paginate collection.products by 12 %}
+  <div class="collection-head">
+    <nav class="meta-caps collection-head__breadcrumb" aria-label="{{ 'general.breadcrumb' | t }}">
+      <a href="{{ routes.collections_url }}">{{ 'collections.shop' | t }}</a>
+      <span aria-hidden="true">→</span>
+      <span>{{ collection.title }}</span>
+    </nav>
+
+    <h1 class="collection-head__title">{{ collection.title }}</h1>
+
+    {% if collection.description != blank %}
+      <div class="collection-head__description">{{ collection.description }}</div>
+    {% endif %}
+  </div>
+
+  <div class="collection-toolbar full-width">
+    <div class="collection-toolbar__inner">
+      <span class="collection-toolbar__count">
+        {{ 'collections.lot_count' | t: count: collection.products_count }}
+      </span>
+
+      <form class="collection-toolbar__sort" data-sort-form>
+        <label for="sort-by" class="collection-toolbar__sort-label">{{ 'collections.sort' | t }}</label>
+        <select id="sort-by" name="sort_by" data-sort-select>
+          {% assign current_sort = collection.sort_by | default: collection.default_sort_by %}
+          {% for option in collection.sort_options %}
+            <option
+              value="{{ option.value }}"
+              {% if option.value == current_sort %}
+                selected
+              {% endif %}
+            >
+              {{ option.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </form>
+    </div>
+  </div>
+
+  <div class="collection-grid">
+    {% for product in collection.products %}
+      {% render 'product-card', product: product, show_badge: true %}
+    {% else %}
+      <p class="collection-grid__empty">{{ 'collections.empty' | t }}</p>
+    {% endfor %}
+  </div>
+
+  <div class="collection-pagination">
+    {{ paginate | default_pagination }}
+  </div>
+{% endpaginate %}
+
+{% stylesheet %}
+  .collection-head {
+    padding-block: 3.75rem 2.125rem;
+  }
+
+  .collection-head__breadcrumb {
+    display: flex;
+    gap: 0.5rem;
+    letter-spacing: 0.1em;
+  }
+
+  .collection-head__breadcrumb a {
+    color: var(--color-text-subtle);
+    text-decoration: none;
+  }
+
+  .collection-head__breadcrumb a:hover {
+    color: var(--color-foreground);
+  }
+
+  .collection-head__title {
+    font-size: clamp(2.25rem, 4vw, 3.25rem);
+    margin-top: 0.875rem;
+  }
+
+  .collection-head__description {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-text-muted);
+    margin-top: 0.75rem;
+    max-width: 32.5rem;
+  }
+
+  .collection-toolbar {
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .collection-toolbar__inner {
+    max-width: var(--page-width);
+    margin: 0 auto;
+    padding: 1rem var(--page-margin);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .collection-toolbar__count {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+  }
+
+  .collection-toolbar__sort {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+
+  .collection-toolbar__sort-label {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    letter-spacing: 0.04em;
+  }
+
+  .collection-toolbar__sort select {
+    border: 1px solid var(--color-border-strong);
+    background: transparent;
+    color: var(--color-foreground);
+    font-size: 0.8125rem;
+    padding: 0.375rem 0.625rem;
+  }
+
+  .collection-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2.125rem 1.875rem;
+    padding-block: 2.75rem 4.5rem;
+  }
+
+  .collection-grid__empty {
+    grid-column: 1 / -1;
+    color: var(--color-text-muted);
+  }
+
+  .collection-pagination {
+    padding-bottom: 3rem;
+    text-align: center;
+    font-size: 0.875rem;
+  }
+
+  @media (max-width: 749px) {
+    .collection-grid {
+      grid-template-columns: 1fr;
+      gap: 2.25rem;
+    }
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  const sortSelect = document.querySelector('[data-sort-select]');
+  if (sortSelect) {
+    sortSelect.addEventListener('change', () => {
+      const url = new URL(window.location.href);
+      url.searchParams.set('sort_by', sortSelect.value);
+      window.location.href = url.toString();
+    });
+  }
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "t:general.collection",
+  "settings": []
+}
+{% endschema %}

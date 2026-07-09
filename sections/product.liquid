@@ -1,0 +1,739 @@
+{% liquid
+  assign current_variant = product.selected_or_first_available_variant
+
+  # Primary data source: the coffee_configuration metaobject (custom.coffee_configuration).
+  # Flat metafields in the custom namespace act as a fallback when no metaobject is linked.
+  assign coffee_config = product.metafields.custom.coffee_configuration.value
+
+  assign origin = product.metafields.custom.origin.value
+  assign subtitle = product.metafields.custom.subtitle.value
+  assign process = product.metafields.custom.process.value
+  assign altitude = product.metafields.custom.altitude.value
+  assign harvest = product.metafields.custom.harvest.value
+  assign roast = product.metafields.custom.roast_level.value
+  assign bag_type = ''
+
+  if coffee_config
+    if coffee_config.origin.value != blank
+      assign origin = coffee_config.origin.value
+    endif
+    if coffee_config.processing_method.value != blank
+      assign process = coffee_config.processing_method.value
+    endif
+    if coffee_config.roast_level.value != blank
+      assign roast = coffee_config.roast_level.value
+    endif
+    if coffee_config.altitude.value != blank
+      assign altitude = coffee_config.altitude.value
+    endif
+    if coffee_config.harvest.value != blank
+      assign harvest = coffee_config.harvest.value
+    endif
+    assign bag_type = coffee_config.bag_type.value
+  endif
+
+  assign config_notes = coffee_config.tasting_notes.value
+  assign brewing_methods = coffee_config.brewing_methods.value
+
+  assign notes_mf = product.metafields.custom.tasting_notes
+  assign notes = ''
+  if notes_mf.type contains 'list'
+    assign notes = notes_mf.value | join: '|'
+  elsif notes_mf.value != blank
+    assign notes = notes_mf.value | replace: ', ', '|' | replace: ',', '|'
+  endif
+  assign note_items = notes | split: '|'
+%}
+
+<nav class="meta-caps pdp-breadcrumb" aria-label="{{ 'general.breadcrumb' | t }}">
+  {% if product.collections.first %}
+    <a href="{{ product.collections.first.url }}">{{ product.collections.first.title }}</a>
+    <span aria-hidden="true">→</span>
+  {% endif %}
+  <span>{{ product.title }}</span>
+</nav>
+
+<div class="pdp">
+  <div class="pdp__gallery">
+    <div class="pdp__gallery-main">
+      {% if product.featured_image %}
+        {{
+          product.featured_image
+          | image_url: width: 1400
+          | image_tag: loading: 'eager', fetchpriority: 'high', data-main-image: ''
+        }}
+      {% else %}
+        {{ 'product-1' | placeholder_svg_tag: 'pdp__gallery-placeholder' }}
+      {% endif %}
+    </div>
+
+    {% if product.images.size > 1 %}
+      <div class="pdp__gallery-thumbs">
+        {% for image in product.images %}
+          <button
+            type="button"
+            class="pdp__gallery-thumb{% if forloop.first %} pdp__gallery-thumb--active{% endif %}"
+            data-thumb
+            data-full-src="{{ image | image_url: width: 1400 }}"
+            aria-label="{{ 'products.view_image' | t: index: forloop.index }}"
+          >
+            {{ image | image_url: width: 300, height: 300, crop: 'center' | image_tag: loading: 'lazy' }}
+          </button>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="pdp__info">
+    {% if origin != blank %}
+      <p class="eyebrow">{{ origin }}</p>
+    {% elsif product.vendor != blank %}
+      <p class="eyebrow">{{ product.vendor }}</p>
+    {% endif %}
+
+    <h1 class="pdp__title">{{ product.title }}</h1>
+
+    {% if subtitle != blank %}
+      <p class="pdp__subtitle">{{ subtitle }}</p>
+    {% endif %}
+
+    <p class="pdp__price" data-price>{{ current_variant.price | money }}</p>
+
+    {% if product.description != blank %}
+      <div class="pdp__description">{{ product.description }}</div>
+    {% endif %}
+
+    {% if config_notes.size > 0 %}
+      <p class="meta-caps pdp__label">{{ 'products.tasting_notes' | t }}</p>
+      <div class="pdp__notes">
+        {% for note in config_notes %}
+          <span class="pill pdp__note-pill" style="--note-color: {{ note.color.value | default: 'transparent' }}">
+            {%- if note.icon.value != blank -%}
+              <span aria-hidden="true">{{ note.icon.value }}</span>
+            {%- endif %}
+            {{ note.name.value -}}
+          </span>
+        {% endfor %}
+      </div>
+    {% elsif note_items.size > 0 %}
+      <p class="meta-caps pdp__label">{{ 'products.tasting_notes' | t }}</p>
+      <div class="pdp__notes">
+        {% for note in note_items %}
+          <span class="pill">{{ note | strip }}</span>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if process != blank or altitude != blank or harvest != blank or bag_type != blank %}
+      <dl class="pdp__facts">
+        {% if process != blank %}
+          <div class="pdp__fact">
+            <dt>{{ 'products.process' | t }}</dt>
+            <dd>{{ process }}</dd>
+          </div>
+        {% endif %}
+        {% if altitude != blank %}
+          <div class="pdp__fact">
+            <dt>{{ 'products.altitude' | t }}</dt>
+            <dd>{{ altitude }}</dd>
+          </div>
+        {% endif %}
+        {% if harvest != blank %}
+          <div class="pdp__fact">
+            <dt>{{ 'products.harvest' | t }}</dt>
+            <dd>{{ harvest }}</dd>
+          </div>
+        {% endif %}
+        {% if bag_type != blank %}
+          <div class="pdp__fact">
+            <dt>{{ 'products.packaging' | t }}</dt>
+            <dd>{{ bag_type }}</dd>
+          </div>
+        {% endif %}
+      </dl>
+    {% endif %}
+
+    {% form 'product', product, class: 'pdp__form', data-product-form: '' %}
+      <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-id>
+
+      {% unless product.has_only_default_variant %}
+        {% for option in product.options_with_values %}
+          <fieldset class="pdp__option">
+            <legend class="meta-caps pdp__label">{{ option.name }}</legend>
+            <div class="pdp__option-values">
+              {% for value in option.values %}
+                <label class="pdp__option-value">
+                  <input
+                    type="radio"
+                    name="option-{{ option.position }}"
+                    value="{{ value | escape }}"
+                    data-option-input
+                    data-option-position="{{ option.position }}"
+                    {% if value == option.selected_value %}
+                      checked
+                    {% endif %}
+                  >
+                  <span>{{ value }}</span>
+                </label>
+              {% endfor %}
+            </div>
+          </fieldset>
+        {% endfor %}
+      {% endunless %}
+
+      <div class="pdp__buy-row">
+        <div class="pdp__quantity">
+          <button type="button" data-qty-minus aria-label="{{ 'products.decrease_quantity' | t }}">–</button>
+          <input
+            type="number"
+            name="quantity"
+            value="1"
+            min="1"
+            inputmode="numeric"
+            aria-label="{{ 'products.quantity' | t }}"
+            data-qty-input
+          >
+          <button type="button" data-qty-plus aria-label="{{ 'products.increase_quantity' | t }}">+</button>
+        </div>
+
+        <button
+          type="submit"
+          class="button pdp__atc"
+          data-atc
+          data-label-add="{{ 'products.add_to_cart' | t }}"
+          data-label-sold-out="{{ 'products.sold_out' | t }}"
+          {% unless current_variant.available %}
+            disabled
+          {% endunless %}
+        >
+          {%- if current_variant.available -%}
+            {{ 'products.add_to_cart' | t }} — <span data-atc-price>{{ current_variant.price | money }}</span>
+          {%- else -%}
+            {{ 'products.sold_out' | t }}
+          {%- endif -%}
+        </button>
+      </div>
+    {% endform %}
+
+    {% if section.settings.freshness_note != blank %}
+      <p class="pdp__freshness">{{ section.settings.freshness_note }}</p>
+    {% endif %}
+
+    {% if brewing_methods.size > 0 %}
+      <p class="meta-caps pdp__label">{{ 'products.recommended_brewing' | t }}</p>
+      <div class="pdp__brew-methods">
+        {% for method in brewing_methods %}
+          <div class="pdp__brew-method">
+            <div class="pdp__brew-method-head">
+              {% if method.icon.value != blank %}
+                <span aria-hidden="true">{{ method.icon.value }}</span>
+              {% endif %}
+              <span class="pdp__brew-method-name">{{ method.name.value }}</span>
+              {% if method.brew_time.value != blank %}
+                <span class="pdp__brew-method-time">{{ method.brew_time.value }}</span>
+              {% endif %}
+            </div>
+            {% if method.description.value != blank %}
+              <p class="pdp__brew-method-description">{{ method.description.value }}</p>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if section.blocks.size > 0 %}
+      <div class="pdp__accordions">
+        {% for block in section.blocks %}
+          <details class="pdp__accordion" {{ block.shopify_attributes }}>
+            <summary>
+              <span>{{ block.settings.title }}</span>
+              <span class="pdp__accordion-icon" aria-hidden="true">+</span>
+            </summary>
+            <div class="pdp__accordion-content">{{ block.settings.content }}</div>
+          </details>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% if coffee_config %}
+  {% liquid
+    assign note_names = ''
+    for note in config_notes
+      assign note_names = note_names | append: note.name.value
+      unless forloop.last
+        assign note_names = note_names | append: ', '
+      endunless
+    endfor
+  %}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org/",
+      "@type": "Product",
+      "name": {{ product.title | json }},
+      "description": {{ product.description | strip_html | json }},
+      "additionalProperty": [
+        { "@type": "PropertyValue", "name": "Roast level", "value": {{ roast | json }} },
+        { "@type": "PropertyValue", "name": "Origin", "value": {{ origin | json }} },
+        { "@type": "PropertyValue", "name": "Processing method", "value": {{ process | json }} },
+        { "@type": "PropertyValue", "name": "Packaging", "value": {{ bag_type | json }} }
+        {%- if note_names != blank -%}
+          ,
+          { "@type": "PropertyValue", "name": "Tasting notes", "value": {{ note_names | json }} }
+        {%- endif %}
+      ]
+    }
+  </script>
+{% endif %}
+
+<script type="application/json" data-variant-data>
+  [
+    {% for variant in product.variants %}
+      {
+        "id": {{ variant.id }},
+        "available": {{ variant.available }},
+        "options": {{ variant.options | json }},
+        "price": {{ variant.price | money | json }}
+      }{% unless forloop.last %},{% endunless %}
+    {% endfor %}
+  ]
+</script>
+
+{% stylesheet %}
+  .pdp-breadcrumb {
+    display: flex;
+    gap: 0.5rem;
+    letter-spacing: 0.1em;
+    padding-block: 1.375rem 0;
+  }
+
+  .pdp-breadcrumb a {
+    color: var(--color-text-subtle);
+    text-decoration: none;
+  }
+
+  .pdp-breadcrumb a:hover {
+    color: var(--color-foreground);
+  }
+
+  .pdp {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3.75rem;
+    padding-block: 1.875rem 3.75rem;
+  }
+
+  .pdp__gallery-main {
+    aspect-ratio: 1 / 1;
+    border-radius: 5px;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--color-foreground) 6%, var(--color-background));
+  }
+
+  .pdp__gallery-main img,
+  .pdp__gallery-main svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .pdp__gallery-thumbs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
+
+  .pdp__gallery-thumb {
+    aspect-ratio: 1 / 1;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    overflow: hidden;
+    cursor: pointer;
+    background: color-mix(in srgb, var(--color-foreground) 6%, var(--color-background));
+  }
+
+  .pdp__gallery-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .pdp__gallery-thumb--active {
+    border: 1.5px solid var(--color-accent);
+  }
+
+  .pdp__title {
+    font-size: clamp(2.25rem, 4vw, 2.875rem);
+    line-height: 1.02;
+    margin-top: 0.75rem;
+  }
+
+  .pdp__subtitle {
+    font-family: var(--font-display--family);
+    font-style: italic;
+    font-size: 1.25rem;
+    color: var(--color-text-muted);
+    margin-top: 0.5rem;
+  }
+
+  .pdp__price {
+    font-size: 1.625rem;
+    margin-top: 1.25rem;
+  }
+
+  .pdp__description {
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: var(--color-text-muted);
+    margin-top: 1.125rem;
+    max-width: 27.5rem;
+  }
+
+  .pdp__label {
+    display: block;
+    margin-top: 1.625rem;
+  }
+
+  .pdp__notes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.625rem;
+  }
+
+  .pdp__note-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    border-color: color-mix(in srgb, var(--note-color) 45%, var(--color-border-strong));
+    background: color-mix(in srgb, var(--note-color) 8%, transparent);
+  }
+
+  .pdp__brew-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    margin-top: 0.625rem;
+  }
+
+  .pdp__brew-method {
+    padding: 0.75rem 0.875rem;
+    background: color-mix(in srgb, var(--color-foreground) 4%, transparent);
+    border-radius: 4px;
+  }
+
+  .pdp__brew-method-head {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .pdp__brew-method-name {
+    font-family: var(--font-display--family);
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+
+  .pdp__brew-method-time {
+    margin-left: auto;
+    font-size: 0.8125rem;
+    color: var(--color-text-subtle);
+  }
+
+  .pdp__brew-method-description {
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    color: var(--color-text-muted);
+    margin-top: 0.25rem;
+  }
+
+  .pdp__facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+    gap: 1px;
+    background: var(--color-border);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-block: 1.5rem 0;
+  }
+
+  .pdp__fact {
+    background: var(--color-background);
+    padding: 1rem 1.125rem;
+  }
+
+  .pdp__fact dt {
+    font-size: 0.625rem;
+    letter-spacing: var(--tracking-meta);
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .pdp__fact dd {
+    font-family: var(--font-display--family);
+    font-weight: 600;
+    font-size: 1rem;
+    margin: 0.25rem 0 0;
+  }
+
+  .pdp__option {
+    border: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .pdp__option-values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+    margin-top: 0.625rem;
+  }
+
+  .pdp__option-value input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .pdp__option-value span {
+    display: inline-block;
+    font-size: 0.8125rem;
+    padding: 0.625rem 1.125rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: border-color 150ms ease, background 150ms ease;
+  }
+
+  .pdp__option-value input:checked + span {
+    background: var(--color-foreground);
+    color: var(--color-background);
+    border-color: var(--color-foreground);
+  }
+
+  .pdp__option-value input:focus-visible + span {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .pdp__buy-row {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.75rem;
+  }
+
+  .pdp__quantity {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--color-border-strong);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .pdp__quantity button {
+    border: none;
+    background: transparent;
+    color: var(--color-text-muted);
+    font-size: 1.125rem;
+    padding: 0 1rem;
+    cursor: pointer;
+  }
+
+  .pdp__quantity input {
+    width: 2.5rem;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    text-align: center;
+    font-size: 0.9375rem;
+    color: var(--color-foreground);
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  .pdp__quantity input::-webkit-outer-spin-button,
+  .pdp__quantity input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .pdp__atc {
+    flex: 1;
+    font-size: 0.9375rem;
+  }
+
+  .pdp__freshness {
+    font-size: 0.75rem;
+    color: var(--color-text-subtle);
+    margin-top: 0.875rem;
+  }
+
+  .pdp__accordions {
+    margin-top: 1.75rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .pdp__accordion summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--color-border);
+    font-family: var(--font-display--family);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .pdp__accordion summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .pdp__accordion-icon {
+    color: var(--color-text-subtle);
+    font-family: var(--font-primary--family);
+    font-weight: 400;
+    transition: transform 200ms ease;
+  }
+
+  .pdp__accordion[open] .pdp__accordion-icon {
+    transform: rotate(45deg);
+  }
+
+  .pdp__accordion-content {
+    padding: 0.875rem 0 1.125rem;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 0.875rem;
+    line-height: 1.65;
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 749px) {
+    .pdp {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  const root = document;
+
+  const mainImage = root.querySelector('[data-main-image]');
+  root.querySelectorAll('[data-thumb]').forEach((thumb) => {
+    thumb.addEventListener('click', () => {
+      if (!mainImage) return;
+      mainImage.removeAttribute('srcset');
+      mainImage.src = thumb.dataset.fullSrc;
+      root
+        .querySelectorAll('[data-thumb]')
+        .forEach((t) => t.classList.remove('pdp__gallery-thumb--active'));
+      thumb.classList.add('pdp__gallery-thumb--active');
+    });
+  });
+
+  const qtyInput = root.querySelector('[data-qty-input]');
+  const qtyMinus = root.querySelector('[data-qty-minus]');
+  const qtyPlus = root.querySelector('[data-qty-plus]');
+  if (qtyInput && qtyMinus && qtyPlus) {
+    qtyMinus.addEventListener('click', () => {
+      qtyInput.value = Math.max(1, parseInt(qtyInput.value || '1', 10) - 1);
+    });
+    qtyPlus.addEventListener('click', () => {
+      qtyInput.value = parseInt(qtyInput.value || '1', 10) + 1;
+    });
+  }
+
+  const dataEl = document.querySelector('[data-variant-data]');
+  const form = root.querySelector('[data-product-form]');
+  if (dataEl && form) {
+    const variants = JSON.parse(dataEl.textContent);
+    const idInput = form.querySelector('[data-variant-id]');
+    const atcButton = form.querySelector('[data-atc]');
+    const priceEl = root.querySelector('[data-price]');
+
+    const optionInputs = Array.from(form.querySelectorAll('[data-option-input]'));
+
+    function selectedOptions() {
+      const positions = [...new Set(optionInputs.map((i) => i.dataset.optionPosition))].sort();
+      return positions.map((pos) => {
+        const checked = optionInputs.find(
+          (i) => i.dataset.optionPosition === pos && i.checked
+        );
+        return checked ? checked.value : null;
+      });
+    }
+
+    function updateVariant() {
+      const selected = selectedOptions();
+      const match = variants.find((v) =>
+        v.options.every((opt, index) => opt === selected[index])
+      );
+
+      if (!match) {
+        atcButton.disabled = true;
+        atcButton.textContent = atcButton.dataset.labelSoldOut;
+        return;
+      }
+
+      idInput.value = match.id;
+      if (priceEl) priceEl.textContent = match.price;
+
+      if (match.available) {
+        atcButton.disabled = false;
+        atcButton.innerHTML = '';
+        atcButton.append(
+          document.createTextNode(atcButton.dataset.labelAdd + ' — '),
+          Object.assign(document.createElement('span'), { textContent: match.price })
+        );
+      } else {
+        atcButton.disabled = true;
+        atcButton.textContent = atcButton.dataset.labelSoldOut;
+      }
+    }
+
+    optionInputs.forEach((input) => input.addEventListener('change', updateVariant));
+  }
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "t:general.product",
+  "settings": [
+    {
+      "type": "text",
+      "id": "freshness_note",
+      "label": "t:labels.freshness_note",
+      "default": "Roasted to order · Ships within 2 business days · Free shipping over $40"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "accordion",
+      "name": "t:general.accordion",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:labels.heading",
+          "default": "Brew guide"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "t:labels.content",
+          "default": "<p>Share brew ratios, water temperature, and timing here.</p>"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  }
+}
+{% endschema %}

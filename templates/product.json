@@ -1,0 +1,37 @@
+{
+  "sections": {
+    "main": {
+      "type": "product",
+      "blocks": {
+        "brew_guide": {
+          "type": "accordion",
+          "settings": {
+            "title": "Brew guide",
+            "content": "<p>We drink this as a pour-over: 1:16 ratio, water just off the boil at 96°C, total brew time around three minutes. It also holds up well as espresso, where the stone fruit turns jammy.</p>"
+          }
+        },
+        "sourcing": {
+          "type": "accordion",
+          "settings": {
+            "title": "Sourcing & producer",
+            "content": "<p>Sourced from smallholder farms organized around a central washing station. We publish what we know about every lot — the farm, the elevation, the process — and pay above C-market rates.</p>"
+          }
+        },
+        "shipping": {
+          "type": "accordion",
+          "settings": {
+            "title": "Shipping & freshness",
+            "content": "<p>Every bag is roasted after you order and ships within two business days. We recommend brewing between five days and five weeks off roast — the roast date is printed on the bag.</p>"
+          }
+        }
+      },
+      "block_order": ["brew_guide", "sourcing", "shipping"],
+      "settings": {}
+    },
+    "related": {
+      "type": "related-products",
+      "settings": {}
+    }
+  },
+  "order": ["main", "related"]
+}

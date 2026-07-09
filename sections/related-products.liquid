@@ -1,0 +1,66 @@
+{% liquid
+  assign source_collection = product.collections.first
+  assign count = 0
+%}
+
+{% if source_collection %}
+  {% capture related_cards %}
+    {% for related_product in source_collection.products %}
+      {% if related_product.id != product.id and count < 3 %}
+        {% assign count = count | plus: 1 %}
+        {% render 'product-card', product: related_product %}
+      {% endif %}
+    {% endfor %}
+  {% endcapture %}
+
+  {% if count > 0 %}
+    <div class="related-products">
+      <h2 class="related-products__heading">{{ section.settings.heading }}</h2>
+      <div class="related-products__grid">
+        {{ related_cards }}
+      </div>
+    </div>
+  {% endif %}
+{% endif %}
+
+{% stylesheet %}
+  .related-products {
+    padding-block: 1.25rem 4.5rem;
+  }
+
+  .related-products__heading {
+    font-weight: 500;
+    font-size: 1.625rem;
+    margin-bottom: 1.625rem;
+  }
+
+  .related-products__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.875rem;
+  }
+
+  @media (max-width: 749px) {
+    .related-products__grid {
+      grid-template-columns: 1fr;
+      gap: 2.25rem;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:general.related_products",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:labels.heading",
+      "default": "From the same table"
+    }
+  ],
+  "enabled_on": {
+    "templates": ["product"]
+  }
+}
+{% endschema %}

@@ -1,0 +1,84 @@
+{
+  "404": {
+    "title": "404",
+    "not_found": "Page not found.",
+    "back_to_shopping": "Back to shopping"
+  },
+  "blog": {
+    "article_comments": "Comments",
+    "article_metadata_html": "{{ date }} by {{ author }}",
+    "comment_form_body": "Comment",
+    "comment_form_email": "Email",
+    "comment_form_name": "Name",
+    "comment_form_submit": "Post",
+    "comment_form_title": "Add a comment"
+  },
+  "cart": {
+    "checkout": "Checkout",
+    "title": "Cart",
+    "title_with_count": "Cart ({{ count }})",
+    "update": "Update",
+    "remove": "Remove"
+  },
+  "customers": {
+    "login": {
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in",
+      "title": "Login"
+    }
+  },
+  "collections": {
+    "title": "Collections",
+    "shop": "Shop",
+    "view_all": "View all origins",
+    "lot_count": "{{ count }} lots",
+    "sort": "Sort",
+    "empty": "No products found."
+  },
+  "products": {
+    "add_to_cart": "Add to cart",
+    "sold_out": "Sold out",
+    "badge_new": "New",
+    "price_from": "From {{ price }}",
+    "tasting_notes": "Tasting notes",
+    "process": "Process",
+    "altitude": "Altitude",
+    "harvest": "Harvest",
+    "packaging": "Packaging",
+    "recommended_brewing": "Recommended brewing",
+    "quantity": "Quantity",
+    "increase_quantity": "Increase quantity",
+    "decrease_quantity": "Decrease quantity",
+    "view_image": "View image {{ index }}"
+  },
+  "general": {
+    "navigation": "Main navigation",
+    "breadcrumb": "Breadcrumb",
+    "newsletter": {
+      "title": "Field reports",
+      "email": "Email address",
+      "placeholder": "you@email.com",
+      "submit": "Join"
+    }
+  },
+  "gift_card": {
+    "add_to_apple_wallet": "Add to Apple Wallet",
+    "card": "Gift card",
+    "expired": "This gift card has expired",
+    "expires_on": "Expires on {{ expires_on }}",
+    "use_at_checkout": "Use this gift card at checkout"
+  },
+  "password": {
+    "title": "This shop is private",
+    "password": "Password",
+    "enter": "Enter"
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "Search articles, pages, or products",
+    "submit": "Search",
+    "no_results_html": "No results found for {{ terms }}",
+    "results_for_html": "{{ count }} results found for {{ terms }}"
+  }
+}

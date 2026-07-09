@@ -1,0 +1,71 @@
+<div class="feature-strip full-width">
+  <div class="feature-strip__inner">
+    {% for block in section.blocks %}
+      <span class="feature-strip__item" {{ block.shopify_attributes }}>{{ block.settings.text }}</span>
+    {% endfor %}
+  </div>
+</div>
+
+{% stylesheet %}
+  .feature-strip {
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .feature-strip__inner {
+    max-width: var(--page-width);
+    margin: 0 auto;
+    padding: 1.625rem var(--page-margin);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+  }
+
+  .feature-strip__item {
+    font-size: 0.75rem;
+    letter-spacing: var(--tracking-meta);
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--color-foreground) 60%, transparent);
+  }
+
+  @media (max-width: 749px) {
+    .feature-strip__inner {
+      justify-content: flex-start;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:general.feature_strip",
+  "blocks": [
+    {
+      "type": "item",
+      "name": "t:general.feature",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "t:labels.text",
+          "default": "Transparent sourcing"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:general.feature_strip",
+      "blocks": [
+        { "type": "item", "settings": { "text": "Transparent sourcing" } },
+        { "type": "item", "settings": { "text": "Roasted to order" } },
+        { "type": "item", "settings": { "text": "Single origin" } },
+        { "type": "item", "settings": { "text": "Free shipping · $40+" } }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  }
+}
+{% endschema %}

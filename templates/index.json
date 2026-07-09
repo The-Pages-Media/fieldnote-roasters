@@ -1,0 +1,40 @@
+{
+  "sections": {
+    "hero": {
+      "type": "hero",
+      "settings": {}
+    },
+    "feature_strip": {
+      "type": "feature-strip",
+      "blocks": {
+        "item_1": {
+          "type": "item",
+          "settings": { "text": "Transparent sourcing" }
+        },
+        "item_2": {
+          "type": "item",
+          "settings": { "text": "Roasted to order" }
+        },
+        "item_3": {
+          "type": "item",
+          "settings": { "text": "Single origin" }
+        },
+        "item_4": {
+          "type": "item",
+          "settings": { "text": "Free shipping · $40+" }
+        }
+      },
+      "block_order": ["item_1", "item_2", "item_3", "item_4"],
+      "settings": {}
+    },
+    "featured_collection": {
+      "type": "featured-collection",
+      "settings": {}
+    },
+    "editorial_band": {
+      "type": "editorial-band",
+      "settings": {}
+    }
+  },
+  "order": ["hero", "feature_strip", "featured_collection", "editorial_band"]
+}
