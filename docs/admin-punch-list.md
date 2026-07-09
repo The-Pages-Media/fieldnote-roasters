@@ -10,9 +10,9 @@ Everything below happens in the Shopify admin. The theme side (build guide Phase
 
 | # | Definition | Type handle | Fields | Notes |
 |---|---|---|---|---|
-| ☐ 1a | Tasting Note | `tasting_note` | `name` (single line, required) · `icon` (single line, emoji) · `color` (single line, hex) · `description` (multi-line) | Enable **Storefronts** access |
+| ☐ 1a | Tasting Note | `tasting_note` | `name` (single line, required) · `icon` (single line, emoji, optional) · `color` (**color** type — swatch picker in admin, not single-line hex) · `description` (multi-line) | Enable **Storefronts** access |
 | ☐ 1b | Brewing Method | `brewing_method` | `name` (single line, required) · `icon` (single line, emoji) · `brew_time` (single line) · `description` (multi-line) | Enable **Storefronts** access |
-| ☐ 1c | Coffee Configuration | `coffee_configuration` | `roast_level` (single line, allowed values: Light / Medium-Light / Medium / Medium-Dark / Dark) · `tasting_notes` (metaobject ref **list** → Tasting Note) · `brewing_methods` (metaobject ref **list** → Brewing Method) · `processing_method` (single line, allowed: Washed / Natural / Honey / Anaerobic) · `bag_type` (single line, allowed: Resealable pouch / Valve bag / Tin) · `origin` (single line) | Enable **Storefronts** access **and the "Web pages" capability** (needed for the Phase 5 auto page at `/pages/coffee_configuration/…`) |
+| ☐ 1c | Coffee Configuration | `coffee_configuration` | `name` (single line, required — **set as the display name field**; admin-only reference so entries read "Reserve Roast" in pickers instead of an auto-handle; theme never renders it) · `roast_level` (single line, allowed values: Light / Medium-Light / Medium / Medium-Dark / Dark) · `tasting_notes` (metaobject ref **list** → Tasting Note) · `brewing_methods` (metaobject ref **list** → Brewing Method) · `processing_method` (single line, allowed: Washed / Natural / Honey / Anaerobic) · `bag_type` (single line, allowed: Resealable pouch / Valve bag / Tin) · `origin` (single line) | Enable **Storefronts** access **and the "Web pages" capability** (needed for the Phase 5 auto page at `/pages/coffee_configuration/…`) |
 
 > **⚠️ Two fields to ADD beyond your guide:** `altitude` (single line, e.g. "1,900 m") and `harvest` (single line, e.g. "2025"). The brand-spec PDP fact grid is Process · Altitude · Harvest (+ Packaging). The theme reads `coffee_config.altitude` / `coffee_config.harvest` — without them those cells simply don't render, but the page looks better (and the live-edit demo has more to show) with them.
 
@@ -30,6 +30,16 @@ Everything below happens in the Shopify admin. The theme side (build guide Phase
 | ☐ | Black Tea | 🍂 | #8f4227 |
 
 > **⚠️ Brand mismatch in the guide:** it seeds Reserve Roast with [Citrus, Chocolate], but the bag design and catalog say **Bergamot · Stone Fruit · Black Tea**. The last three entries fix that. (Theme renders the colors as a subtle border/background tint, so the guide's bright hexes won't fight the palette either way.) Add a one-line description on each.
+
+## 2b. Standard taxonomy flavors (the interop layer — do alongside §2, not instead)
+
+| # | Item | Detail |
+|---|---|---|
+| ☐ | Set product category | Each coffee product → taxonomy category **Coffee** (product details page). This surfaces the category metafields, including Flavor |
+| ☐ | Populate `shopify.flavor` | On Reserve Roast, pick/create flavor entries (taxonomy has defaults; you can add custom entries like "Bergamot" — entries are editable, the definition's *fields* are not) |
+| ☐ | Test (your open question) | Try adding a metaobject-reference field on a custom definition targeting `shopify--flavor`. Undocumented either way — if the picker offers it, great, link tasting_note → flavor for the canonical-mapping story; if not, product-level `shopify.flavor` still carries the interop demo |
+
+**Why both:** `shopify--flavor` entries only expose `label` + `taxonomy_reference` in Liquid (taxonomy_reference is an unresolvable GID), the definition is read-only (no icon/color/description can ever be added), and category metafields attach to *products*, not to your metaobject. So standard flavors can't replace `tasting_note` — but they're the discoverability/canonical layer (Shop, marketplaces, search engines). The theme now renders tasting notes with this priority: **custom tasting_note metaobjects → standard `shopify.flavor` labels → flat text metafield**, so either layer works alone and the talk can show both.
 
 ## 3. Brewing Method entries (4)
 

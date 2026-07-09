@@ -35,6 +35,10 @@
   assign config_notes = coffee_config.tasting_notes.value
   assign brewing_methods = coffee_config.brewing_methods.value
 
+  # Standard taxonomy flavors (category metafield → shopify--flavor metaobjects).
+  # Second in priority: canonical labels, but no icon/color/description fields.
+  assign std_flavors = product.metafields.shopify.flavor.value
+
   assign notes_mf = product.metafields.custom.tasting_notes
   assign notes = ''
   if notes_mf.type contains 'list'
@@ -110,9 +114,18 @@
           <span class="pill pdp__note-pill" style="--note-color: {{ note.color.value | default: 'transparent' }}">
             {%- if note.icon.value != blank -%}
               <span aria-hidden="true">{{ note.icon.value }}</span>
+            {%- elsif note.color.value != blank -%}
+              <span class="pdp__note-dot" aria-hidden="true"></span>
             {%- endif %}
             {{ note.name.value -}}
           </span>
+        {% endfor %}
+      </div>
+    {% elsif std_flavors.size > 0 %}
+      <p class="meta-caps pdp__label">{{ 'products.tasting_notes' | t }}</p>
+      <div class="pdp__notes">
+        {% for flavor in std_flavors %}
+          <span class="pill">{{ flavor.label.value }}</span>
         {% endfor %}
       </div>
     {% elsif note_items.size > 0 %}
@@ -389,7 +402,6 @@
     line-height: 1.65;
     color: var(--color-text-muted);
     margin-top: 1.125rem;
-    max-width: 27.5rem;
   }
 
   .pdp__label {
@@ -410,6 +422,13 @@
     gap: 0.375rem;
     border-color: color-mix(in srgb, var(--note-color) 45%, var(--color-border-strong));
     background: color-mix(in srgb, var(--note-color) 8%, transparent);
+  }
+
+  .pdp__note-dot {
+    width: 0.4375rem;
+    height: 0.4375rem;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--note-color) 80%, var(--color-foreground));
   }
 
   .pdp__brew-methods {

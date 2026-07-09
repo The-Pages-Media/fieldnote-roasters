@@ -40,6 +40,13 @@
         assign notes = notes | append: ', '
       endunless
     endfor
+  elsif product.metafields.shopify.flavor.value.size > 0
+    for flavor in product.metafields.shopify.flavor.value
+      assign notes = notes | append: flavor.label.value
+      unless forloop.last
+        assign notes = notes | append: ', '
+      endunless
+    endfor
   else
     assign notes_mf = product.metafields.custom.tasting_notes
     if notes_mf.type contains 'list'
