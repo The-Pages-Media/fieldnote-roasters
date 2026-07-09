@@ -63,7 +63,7 @@
       "type": "featured-collection",
       "settings": {
         "heading": "This week's table",
-        "collection": "",
+        "collection": "frontpage",
         "products_to_show": 3
       }
     },
@@ -72,6 +72,7 @@
       "settings": {
         "eyebrow": "The Fieldnote",
         "quote": "We publish what we know — the farm, the elevation, the process — and let the cup speak for itself.",
+        "image": "shopify://shop_images/ChatGPT_Image_Jul_9_2026_06_57_04_AM_9.png",
         "link_label": "Read our sourcing notes",
         "link": ""
       }
