@@ -52,6 +52,11 @@
     "decrease_quantity": "Decrease quantity",
     "view_image": "View image {{ index }}"
   },
+  "metaobjects": {
+    "configuration": "Coffee configuration",
+    "roast_level": "Roast level",
+    "appears_on": "Appears on"
+  },
   "general": {
     "navigation": "Main navigation",
     "breadcrumb": "Breadcrumb",

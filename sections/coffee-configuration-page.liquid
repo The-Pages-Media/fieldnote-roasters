@@ -1,0 +1,226 @@
+{% liquid
+  assign config_name = metaobject.name.value | default: metaobject.system.handle
+%}
+
+<div class="config-page">
+  <p class="eyebrow">{{ 'metaobjects.configuration' | t }}</p>
+  <h1 class="config-page__title">{{ config_name }}</h1>
+  {% if metaobject.origin.value != blank %}
+    <p class="config-page__origin">{{ metaobject.origin.value }}</p>
+  {% endif %}
+
+  <dl class="config-page__facts">
+    {% if metaobject.roast_level.value != blank %}
+      <div class="config-page__fact">
+        <dt>{{ 'metaobjects.roast_level' | t }}</dt>
+        <dd>{{ metaobject.roast_level.value }}</dd>
+      </div>
+    {% endif %}
+    {% if metaobject.processing_method.value != blank %}
+      <div class="config-page__fact">
+        <dt>{{ 'products.process' | t }}</dt>
+        <dd>{{ metaobject.processing_method.value }}</dd>
+      </div>
+    {% endif %}
+    {% if metaobject.altitude.value != blank %}
+      <div class="config-page__fact">
+        <dt>{{ 'products.altitude' | t }}</dt>
+        <dd>{{ metaobject.altitude.value }}</dd>
+      </div>
+    {% endif %}
+    {% if metaobject.harvest.value != blank %}
+      <div class="config-page__fact">
+        <dt>{{ 'products.harvest' | t }}</dt>
+        <dd>{{ metaobject.harvest.value }}</dd>
+      </div>
+    {% endif %}
+    {% if metaobject.bag_type.value != blank %}
+      <div class="config-page__fact">
+        <dt>{{ 'products.packaging' | t }}</dt>
+        <dd>{{ metaobject.bag_type.value }}</dd>
+      </div>
+    {% endif %}
+  </dl>
+
+  {% if metaobject.tasting_notes.value.size > 0 %}
+    <p class="meta-caps config-page__label">{{ 'products.tasting_notes' | t }}</p>
+    <div class="config-page__notes">
+      {% for note in metaobject.tasting_notes.value %}
+        <span class="pill config-page__note" style="--note-color: {{ note.color.value | default: 'transparent' }}">
+          {%- if note.icon.value != blank -%}
+            <span aria-hidden="true">{{ note.icon.value }}</span>
+          {%- endif %}
+          {{ note.name.value -}}
+        </span>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if metaobject.brewing_methods.value.size > 0 %}
+    <p class="meta-caps config-page__label">{{ 'products.recommended_brewing' | t }}</p>
+    <div class="config-page__methods">
+      {% for method in metaobject.brewing_methods.value %}
+        <div class="config-page__method">
+          {% if method.icon.value != blank %}
+            <span aria-hidden="true">{{ method.icon.value }}</span>
+          {% endif %}
+          <span class="config-page__method-name">{{ method.name.value }}</span>
+          {% if method.brew_time.value != blank %}
+            <span class="config-page__method-time">{{ method.brew_time.value }}</span>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% liquid
+    assign linked_count = 0
+    capture linked_cards
+      for linked_product in collections.all.products limit: 50
+        if linked_product.metafields.custom.coffee_configuration.value.system.id == metaobject.system.id
+          assign linked_count = linked_count | plus: 1
+          render 'product-card', product: linked_product
+        endif
+      endfor
+    endcapture
+  %}
+
+  {% if linked_count > 0 %}
+    <div class="config-page__products">
+      <h2 class="config-page__products-heading">{{ 'metaobjects.appears_on' | t }}</h2>
+      <div class="config-page__products-grid">
+        {{ linked_cards }}
+      </div>
+    </div>
+  {% endif %}
+</div>
+
+{% stylesheet %}
+  .config-page {
+    padding-block: 3.75rem 4.5rem;
+  }
+
+  .config-page__title {
+    font-size: clamp(2.25rem, 4vw, 3.25rem);
+    margin-top: 0.75rem;
+  }
+
+  .config-page__origin {
+    font-family: var(--font-display--family);
+    font-style: italic;
+    font-size: 1.25rem;
+    color: var(--color-text-muted);
+    margin-top: 0.5rem;
+  }
+
+  .config-page__facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+    gap: 1px;
+    background: var(--color-border);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    overflow: hidden;
+    max-width: 44rem;
+    margin: 2rem 0 0;
+  }
+
+  .config-page__fact {
+    background: var(--color-background);
+    padding: 1rem 1.125rem;
+  }
+
+  .config-page__fact dt {
+    font-size: 0.625rem;
+    letter-spacing: var(--tracking-meta);
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .config-page__fact dd {
+    font-family: var(--font-display--family);
+    font-weight: 600;
+    font-size: 1rem;
+    margin: 0.25rem 0 0;
+  }
+
+  .config-page__label {
+    display: block;
+    margin-top: 1.75rem;
+  }
+
+  .config-page__notes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.625rem;
+  }
+
+  .config-page__note {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    border-color: color-mix(in srgb, var(--note-color) 45%, var(--color-border-strong));
+    background: color-mix(in srgb, var(--note-color) 8%, transparent);
+  }
+
+  .config-page__methods {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    margin-top: 0.625rem;
+    max-width: 27.5rem;
+  }
+
+  .config-page__method {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 0.875rem;
+    background: color-mix(in srgb, var(--color-foreground) 4%, transparent);
+    border-radius: 4px;
+  }
+
+  .config-page__method-name {
+    font-family: var(--font-display--family);
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+
+  .config-page__method-time {
+    margin-left: auto;
+    font-size: 0.8125rem;
+    color: var(--color-text-subtle);
+  }
+
+  .config-page__products {
+    margin-top: 3.5rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .config-page__products-heading {
+    font-weight: 500;
+    font-size: 1.625rem;
+    margin-bottom: 1.625rem;
+  }
+
+  .config-page__products-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.875rem;
+  }
+
+  @media (max-width: 749px) {
+    .config-page__products-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:general.coffee_configuration",
+  "settings": []
+}
+{% endschema %}

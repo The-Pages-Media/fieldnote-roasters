@@ -1,0 +1,9 @@
+{
+  "sections": {
+    "main": {
+      "type": "coffee-configuration-page",
+      "settings": {}
+    }
+  },
+  "order": ["main"]
+}
