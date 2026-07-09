@@ -575,7 +575,7 @@ Before you present to Shopify today:
 - [x] Live edit test passed (edit admin field, refresh page, see change)
 - [x] JSON-LD block visible in view source
 - [x] Metaobject page URL confirmed working
-- [ ] Storefront API query saved and tested in GraphiQL
+- [x] Storefront API query saved and tested in GraphiQL
 - [ ] Flow screenshot ready OR workflow built
 - [ ] Checkout extension mockup ready (or noted as post-rehearsal)
 
