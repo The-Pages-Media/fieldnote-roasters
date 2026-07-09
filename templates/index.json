@@ -1,40 +1,86 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "hero": {
       "type": "hero",
-      "settings": {}
+      "settings": {
+        "layout": "hero--split",
+        "eyebrow": "New harvest · Ethiopia",
+        "heading": "Notes from the origin.",
+        "text": "Single-origin coffee, sourced transparently and roasted in small batches. Each lot documented — origin, process, altitude, harvest.",
+        "image": "shopify://shop_images/ChatGPT_Image_Jul_9_2026_06_57_04_AM_10.png",
+        "primary_cta_label": "Shop Reserve Roast",
+        "primary_cta_link": "",
+        "secondary_cta_label": "Explore origins",
+        "secondary_cta_link": ""
+      }
     },
     "feature_strip": {
       "type": "feature-strip",
       "blocks": {
         "item_1": {
           "type": "item",
-          "settings": { "text": "Transparent sourcing" }
+          "settings": {
+            "text": "Transparent sourcing"
+          }
         },
         "item_2": {
           "type": "item",
-          "settings": { "text": "Roasted to order" }
+          "settings": {
+            "text": "Roasted to order"
+          }
         },
         "item_3": {
           "type": "item",
-          "settings": { "text": "Single origin" }
+          "settings": {
+            "text": "Single origin"
+          }
         },
         "item_4": {
           "type": "item",
-          "settings": { "text": "Free shipping · $40+" }
+          "settings": {
+            "text": "Free shipping · $40+"
+          }
         }
       },
-      "block_order": ["item_1", "item_2", "item_3", "item_4"],
+      "block_order": [
+        "item_1",
+        "item_2",
+        "item_3",
+        "item_4"
+      ],
       "settings": {}
     },
     "featured_collection": {
       "type": "featured-collection",
-      "settings": {}
+      "settings": {
+        "heading": "This week's table",
+        "collection": "",
+        "products_to_show": 3
+      }
     },
     "editorial_band": {
       "type": "editorial-band",
-      "settings": {}
+      "settings": {
+        "eyebrow": "The Fieldnote",
+        "quote": "We publish what we know — the farm, the elevation, the process — and let the cup speak for itself.",
+        "link_label": "Read our sourcing notes",
+        "link": ""
+      }
     }
   },
-  "order": ["hero", "feature_strip", "featured_collection", "editorial_band"]
+  "order": [
+    "hero",
+    "feature_strip",
+    "featured_collection",
+    "editorial_band"
+  ]
 }
