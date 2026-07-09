@@ -38,6 +38,7 @@
     "main": "Main",
     "page": "Page",
     "password": "Password",
+    "prep_preference": "Prep preference",
     "primary": "Primary",
     "product": "Product",
     "related_products": "Related products",
@@ -71,7 +72,11 @@
     "menu": "Menu",
     "monogram": "Monogram",
     "notes_override": "Notes override",
+    "preference_note": "Note",
+    "preference_options": "Options",
+    "property_name": "Order property name",
     "show_quantity": "Show quantity selector",
+    "use_grind_metafield": "Use product grind options",
     "customer_account_menu": "Customer account menu",
     "newsletter_text": "Newsletter text",
     "padding": "Padding",
@@ -92,7 +97,11 @@
   "info": {
     "cta_link_fallback": "Leave blank to link to the first product using this configuration.",
     "dynamic_source_fallback": "Leave blank to automatically use the product's [coffee configuration](https://admin.shopify.com/store/fieldnote-roasters-demo/content/metaobjects/entries/coffee_configuration). Connect a dynamic source to pull from any metafield.",
-    "notes_override": "Automatically shows notes from the product's [coffee configuration](https://admin.shopify.com/store/fieldnote-roasters-demo/content/metaobjects/entries/coffee_configuration) unless an override is set here. Comma-separated."
+    "notes_override": "Automatically shows notes from the product's [coffee configuration](https://admin.shopify.com/store/fieldnote-roasters-demo/content/metaobjects/entries/coffee_configuration) unless an override is set here. Comma-separated.",
+    "preference_heading": "Leave blank to use the order property name.",
+    "preference_options": "Comma-separated. Used only when the product has no grind options assigned or the metafield source is off. The first option is preselected.",
+    "use_grind_metafield": "Pulls the eligible grinds from the product's [grind options metafield](https://admin.shopify.com/store/fieldnote-roasters-demo/settings/custom_data/product/metafields). Uncheck for additional preference blocks that aren't about grind.",
+    "property_name": "Saved on the order line item as a custom attribute so staff see it when prepping. Informational only — it never changes pricing."
   },
   "options": {
     "alignment": {

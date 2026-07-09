@@ -37,6 +37,13 @@
           "type": "variant_picker",
           "settings": {}
         },
+        "grind": {
+          "type": "preference",
+          "settings": {
+            "property_name": "Grind",
+            "options": "Whole bean, Ground for drip, Ground for espresso, Ground for French press"
+          }
+        },
         "buy_buttons": {
           "type": "buy_buttons",
           "settings": {
@@ -85,6 +92,7 @@
         "tasting_notes",
         "facts",
         "variant_picker",
+        "grind",
         "buy_buttons",
         "freshness",
         "brewing",

@@ -1,6 +1,10 @@
 {% liquid
   assign current_variant = product.selected_or_first_available_variant
 
+  # Preference blocks render outside the product form, so their inputs
+  # attach to it via the HTML form attribute using this id.
+  assign product_form_id = 'product-form-' | append: section.id
+
   # Primary data source: the coffee_configuration metaobject (custom.coffee_configuration).
   # Flat metafields in the custom namespace act as a fallback when no metaobject is linked.
   assign coffee_config = product.metafields.custom.coffee_configuration.value
@@ -228,8 +232,77 @@
             </div>
           {% endunless %}
 
+        {% when 'preference' %}
+          {% liquid
+            assign property_name = block.settings.property_name | strip
+            assign preference_options = block.settings.options | replace: ', ', '|' | replace: ',', '|' | split: '|'
+            assign preference_heading = block.settings.heading
+            if preference_heading == blank
+              assign preference_heading = property_name
+            endif
+
+            # Grind eligibility is assigned per product via the
+            # custom.grind_options metafield (list of grind_option
+            # metaobjects). The comma-separated setting is the fallback.
+            assign grind_metaobjects = blank
+            if block.settings.use_grind_metafield
+              assign grind_metaobjects = product.metafields.custom.grind_options.value
+            endif
+          %}
+          {% if property_name != blank %}
+            {% if grind_metaobjects.size > 0 or preference_options.size > 0 %}
+              <fieldset class="pdp__option pdp__preference" {{ block.shopify_attributes }}>
+                <legend class="meta-caps pdp__label">{{ preference_heading }}</legend>
+                <div class="pdp__option-values">
+                  {% if grind_metaobjects.size > 0 %}
+                    {% for grind in grind_metaobjects %}
+                      <label class="pdp__option-value">
+                        <input
+                          type="radio"
+                          name="properties[{{ property_name | escape }}]"
+                          value="{{ grind.name.value | escape }}"
+                          form="{{ product_form_id }}"
+                          {% if forloop.first %}
+                            checked
+                          {% endif %}
+                        >
+                        <span>
+                          {%- if grind.icon.value != blank -%}
+                            <span aria-hidden="true">{{ grind.icon.value }}</span>
+                          {% endif -%}
+                          {{ grind.name.value -}}
+                        </span>
+                      </label>
+                    {% endfor %}
+                  {% else %}
+                    {% for preference_option in preference_options %}
+                      {% assign option_label = preference_option | strip %}
+                      {% if option_label != blank %}
+                        <label class="pdp__option-value">
+                          <input
+                            type="radio"
+                            name="properties[{{ property_name | escape }}]"
+                            value="{{ option_label | escape }}"
+                            form="{{ product_form_id }}"
+                            {% if forloop.first %}
+                              checked
+                            {% endif %}
+                          >
+                          <span>{{ option_label }}</span>
+                        </label>
+                      {% endif %}
+                    {% endfor %}
+                  {% endif %}
+                </div>
+                {% if block.settings.note != blank %}
+                  <p class="pdp__preference-note">{{ block.settings.note }}</p>
+                {% endif %}
+              </fieldset>
+            {% endif %}
+          {% endif %}
+
         {% when 'buy_buttons' %}
-          {% form 'product', product, class: 'pdp__form', data-product-form: '' %}
+          {% form 'product', product, id: product_form_id, class: 'pdp__form', data-product-form: '' %}
             <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-id>
 
             <div class="pdp__buy-row" {{ block.shopify_attributes }}>
@@ -582,6 +655,12 @@
     outline-offset: 2px;
   }
 
+  .pdp__preference-note {
+    font-size: 0.75rem;
+    color: var(--color-text-subtle);
+    margin-top: 0.5rem;
+  }
+
   .pdp__buy-row {
     display: flex;
     gap: 0.75rem;
@@ -853,6 +932,44 @@
       "name": "t:general.variant_picker",
       "limit": 1,
       "settings": []
+    },
+    {
+      "type": "preference",
+      "name": "t:general.prep_preference",
+      "settings": [
+        {
+          "type": "text",
+          "id": "property_name",
+          "label": "t:labels.property_name",
+          "default": "Grind",
+          "info": "t:info.property_name"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:labels.heading",
+          "info": "t:info.preference_heading"
+        },
+        {
+          "type": "checkbox",
+          "id": "use_grind_metafield",
+          "label": "t:labels.use_grind_metafield",
+          "default": true,
+          "info": "t:info.use_grind_metafield"
+        },
+        {
+          "type": "text",
+          "id": "options",
+          "label": "t:labels.preference_options",
+          "default": "Whole bean, Ground for drip, Ground for espresso, Ground for French press",
+          "info": "t:info.preference_options"
+        },
+        {
+          "type": "text",
+          "id": "note",
+          "label": "t:labels.preference_note"
+        }
+      ]
     },
     {
       "type": "buy_buttons",

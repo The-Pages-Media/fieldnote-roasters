@@ -61,6 +61,17 @@
                 <p class="cart-line__meta">{{ line_meta | strip }}</p>
               {% endif %}
 
+              {% if item.properties.size > 0 %}
+                <ul class="cart-line__properties" role="list">
+                  {% for property in item.properties %}
+                    {% assign property_prefix = property.first | slice: 0 %}
+                    {% if property.last != blank and property_prefix != '_' %}
+                      <li>{{ property.first | escape }}: {{ property.last | escape }}</li>
+                    {% endif %}
+                  {% endfor %}
+                </ul>
+              {% endif %}
+
               <a href="{{ item.url_to_remove }}" class="cart-line__remove">{{ 'cart.remove' | t }}</a>
             </div>
 
@@ -193,6 +204,15 @@
     letter-spacing: 0.02em;
     color: var(--color-text-subtle);
     margin-top: 0.1875rem;
+  }
+
+  .cart-line__properties {
+    list-style: none;
+    margin: 0.25rem 0 0;
+    padding: 0;
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+    color: var(--color-text-subtle);
   }
 
   .cart-line__remove {

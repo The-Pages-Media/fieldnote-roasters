@@ -567,14 +567,14 @@ If you want to build it before July 22, use Shopify's UI extension CLI to scaffo
 
 Before you present to Shopify today:
 
-- [ ] All three metaobject definitions saved
-- [ ] Referenced metaobject entries seeded (5 tasting notes, 4 brewing methods)
-- [ ] Product metafield definition exists on Product
-- [ ] One coffee product created with metafield populated
-- [ ] Theme snippet added and rendering on product page
-- [ ] Live edit test passed (edit admin field, refresh page, see change)
-- [ ] JSON-LD block visible in view source
-- [ ] Metaobject page URL confirmed working
+- [x] All three metaobject definitions saved
+- [x] Referenced metaobject entries seeded (5 tasting notes, 4 brewing methods)
+- [x] Product metafield definition exists on Product
+- [x] One coffee product created with metafield populated
+- [x] Theme snippet added and rendering on product page
+- [x] Live edit test passed (edit admin field, refresh page, see change)
+- [x] JSON-LD block visible in view source
+- [x] Metaobject page URL confirmed working
 - [ ] Storefront API query saved and tested in GraphiQL
 - [ ] Flow screenshot ready OR workflow built
 - [ ] Checkout extension mockup ready (or noted as post-rehearsal)
