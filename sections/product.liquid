@@ -643,7 +643,11 @@
     max-width: none;
   }
 
-  .pdp__accordions {
+  .pdp__accordion {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .pdp__accordion:first-of-type {
     margin-top: 1.75rem;
     border-top: 1px solid var(--color-border);
   }
@@ -653,7 +657,6 @@
     justify-content: space-between;
     align-items: center;
     padding: 1rem 0;
-    border-bottom: 1px solid var(--color-border);
     font-family: var(--font-display--family);
     font-weight: 600;
     font-size: 0.9375rem;
@@ -677,8 +680,7 @@
   }
 
   .pdp__accordion-content {
-    padding: 0.875rem 0 1.125rem;
-    border-bottom: 1px solid var(--color-border);
+    padding: 0 0 1.125rem;
     font-size: 0.875rem;
     line-height: 1.65;
     color: var(--color-text-muted);
@@ -775,15 +777,123 @@
 {% schema %}
 {
   "name": "t:general.product",
-  "settings": [
+  "settings": [],
+  "blocks": [
+    {
+      "type": "vendor",
+      "name": "t:general.vendor",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "t:labels.text",
+          "info": "t:info.dynamic_source_fallback"
+        }
+      ]
+    },
+    {
+      "type": "title",
+      "name": "t:general.title",
+      "limit": 1,
+      "settings": []
+    },
+    {
+      "type": "subtitle",
+      "name": "t:general.subtitle",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "t:labels.text",
+          "info": "t:info.dynamic_source_fallback"
+        }
+      ]
+    },
+    {
+      "type": "price",
+      "name": "t:general.price",
+      "limit": 1,
+      "settings": []
+    },
+    {
+      "type": "description",
+      "name": "t:general.description",
+      "limit": 1,
+      "settings": []
+    },
+    {
+      "type": "tasting_notes",
+      "name": "t:general.tasting_notes",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:labels.heading",
+          "default": "Tasting notes"
+        },
+        {
+          "type": "text",
+          "id": "notes_override",
+          "label": "t:labels.notes_override",
+          "info": "t:info.notes_override"
+        }
+      ]
+    },
+    {
+      "type": "facts",
+      "name": "t:general.facts",
+      "limit": 1,
+      "settings": []
+    },
+    {
+      "type": "variant_picker",
+      "name": "t:general.variant_picker",
+      "limit": 1,
+      "settings": []
+    },
+    {
+      "type": "buy_buttons",
+      "name": "t:general.buy_buttons",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_quantity",
+          "label": "t:labels.show_quantity",
+          "default": true
+        }
+      ]
+    },
     {
       "type": "text",
-      "id": "freshness_note",
-      "label": "t:labels.freshness_note",
-      "default": "Roasted to order · Ships within 2 business days · Free shipping over $40"
-    }
-  ],
-  "blocks": [
+      "name": "t:general.text",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "t:labels.text"
+        },
+        {
+          "type": "select",
+          "id": "style",
+          "label": "t:labels.text_style",
+          "options": [
+            { "value": "pdp__text-block--regular", "label": "t:options.text_block.regular" },
+            { "value": "pdp__text-block--fine", "label": "t:options.text_block.fine_print" }
+          ],
+          "default": "pdp__text-block--regular"
+        }
+      ]
+    },
+    {
+      "type": "brewing",
+      "name": "t:general.brewing",
+      "limit": 1,
+      "settings": []
+    },
     {
       "type": "accordion",
       "name": "t:general.accordion",

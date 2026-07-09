@@ -11,6 +11,16 @@
     "collection_card": "Collection card",
     "collections_grid": "Collections grid",
     "coffee_configuration": "Coffee configuration",
+    "brewing": "Brewing methods",
+    "buy_buttons": "Buy buttons",
+    "description": "Description",
+    "facts": "Coffee facts",
+    "price": "Price",
+    "subtitle": "Subtitle",
+    "tasting_notes": "Tasting notes",
+    "title": "Title",
+    "variant_picker": "Variant picker",
+    "vendor": "Vendor / origin",
     "colors": "Colors",
     "column": "Column",
     "content": "Content",
@@ -60,6 +70,8 @@
     "link_label": "Link label",
     "menu": "Menu",
     "monogram": "Monogram",
+    "notes_override": "Notes override",
+    "show_quantity": "Show quantity selector",
     "customer_account_menu": "Customer account menu",
     "newsletter_text": "Newsletter text",
     "padding": "Padding",
@@ -76,6 +88,10 @@
     "tagline": "Tagline",
     "text_style": "Text style",
     "text": "Text"
+  },
+  "info": {
+    "dynamic_source_fallback": "Leave blank to use the product's coffee configuration. Connect a dynamic source to pull from any metafield.",
+    "notes_override": "Comma-separated. Overrides the coffee configuration and taxonomy flavors."
   },
   "options": {
     "alignment": {

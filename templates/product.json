@@ -3,6 +3,57 @@
     "main": {
       "type": "product",
       "blocks": {
+        "vendor": {
+          "type": "vendor",
+          "settings": {}
+        },
+        "title": {
+          "type": "title",
+          "settings": {}
+        },
+        "subtitle": {
+          "type": "subtitle",
+          "settings": {}
+        },
+        "price": {
+          "type": "price",
+          "settings": {}
+        },
+        "description": {
+          "type": "description",
+          "settings": {}
+        },
+        "tasting_notes": {
+          "type": "tasting_notes",
+          "settings": {
+            "heading": "Tasting notes"
+          }
+        },
+        "facts": {
+          "type": "facts",
+          "settings": {}
+        },
+        "variant_picker": {
+          "type": "variant_picker",
+          "settings": {}
+        },
+        "buy_buttons": {
+          "type": "buy_buttons",
+          "settings": {
+            "show_quantity": true
+          }
+        },
+        "freshness": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Roasted to order · Ships within 2 business days · Free shipping over $40</p>",
+            "style": "pdp__text-block--fine"
+          }
+        },
+        "brewing": {
+          "type": "brewing",
+          "settings": {}
+        },
         "brew_guide": {
           "type": "accordion",
           "settings": {
@@ -25,7 +76,22 @@
           }
         }
       },
-      "block_order": ["brew_guide", "sourcing", "shipping"],
+      "block_order": [
+        "vendor",
+        "title",
+        "subtitle",
+        "price",
+        "description",
+        "tasting_notes",
+        "facts",
+        "variant_picker",
+        "buy_buttons",
+        "freshness",
+        "brewing",
+        "brew_guide",
+        "sourcing",
+        "shipping"
+      ],
       "settings": {}
     },
     "related": {
