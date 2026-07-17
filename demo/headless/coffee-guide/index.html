@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Reserve Roast · Coffee Guide (Headless)</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <style>
     :root {
       --paper: #F4EDDF;
@@ -27,6 +28,14 @@
       color: var(--clay);
       margin: 0 0 8px;
     }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 24px;
+      font-size: 13px;
+      color: var(--clay);
+      text-decoration: none;
+    }
+    .back-link:hover { text-decoration: underline; }
     h1 {
       font-family: 'Zilla Slab', Georgia, serif;
       font-size: 42px;
@@ -171,6 +180,7 @@
   </style>
 </head>
 <body>
+  <a class="back-link" href="/">← Back to the demo hub</a>
   <nav id="switcher" class="switcher" aria-label="All coffees" hidden></nav>
   <div id="status">Loading from the Storefront API…</div>
   <div id="app" hidden>
@@ -203,6 +213,7 @@
   <footer>
     Rendered outside Shopify — this page is plain HTML + one Storefront API
     fetch. Same metaobject, sixth surface.
+    <a href="/">Back to the demo hub →</a>
     <p class="attribution">
       Built by Taylor Page for a DotDev 2026 partner talk on using metaobjects as
       Shopify's configuration layer. More at
