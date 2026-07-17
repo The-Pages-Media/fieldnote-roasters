@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reserve Roast · Coffee Guide (Headless)</title>
+  <style>
+    :root {
+      --paper: #F4EDDF;
+      --espresso: #2A1E16;
+      --clay: #A0522D;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Work Sans', system-ui, sans-serif;
+      background: var(--paper);
+      color: var(--espresso);
+      max-width: 680px;
+      margin: 48px auto;
+      padding: 0 24px;
+      line-height: 1.5;
+    }
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-size: 12px;
+      color: var(--clay);
+      margin: 0 0 8px;
+    }
+    h1 {
+      font-family: 'Zilla Slab', Georgia, serif;
+      font-size: 42px;
+      margin: 0 0 4px;
+      font-weight: 600;
+    }
+    .subtitle { font-style: italic; opacity: 0.7; margin: 0 0 24px; }
+    .product-image {
+      width: 100%;
+      max-height: 420px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 32px;
+      display: block;
+    }
+    .soft-note {
+      padding: 16px;
+      background: color-mix(in srgb, var(--espresso) 5%, transparent);
+      border-radius: 6px;
+      font-size: 14px;
+      opacity: 0.75;
+    }
+    [hidden] { display: none !important; }
+    .switcher {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 32px;
+    }
+    .switcher a {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--espresso) 25%, transparent);
+      color: var(--espresso);
+      text-decoration: none;
+      font-size: 13px;
+      transition: border-color 0.15s ease, background-color 0.15s ease;
+    }
+    .switcher a:hover { border-color: var(--clay); }
+    .switcher a[aria-current="page"] {
+      border-color: var(--clay);
+      background: color-mix(in srgb, var(--clay) 12%, transparent);
+      font-weight: 600;
+    }
+    .code-reveal {
+      margin-top: 48px;
+      border: 1px solid color-mix(in srgb, var(--espresso) 15%, transparent);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .code-reveal summary {
+      cursor: pointer;
+      padding: 14px 16px;
+      font-family: 'Zilla Slab', Georgia, serif;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--clay);
+      user-select: none;
+    }
+    .code-reveal summary:hover { background: color-mix(in srgb, var(--espresso) 4%, transparent); }
+    .code-caption {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      padding: 0 16px;
+      opacity: 0.65;
+      margin: 8px 0;
+    }
+    .code-reveal pre {
+      margin: 0;
+      padding: 16px;
+      background: var(--espresso);
+      color: var(--paper);
+      font-size: 12.5px;
+      line-height: 1.6;
+      overflow-x: auto;
+    }
+    .code-reveal code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .facts {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px 24px;
+      padding: 24px 0;
+      border-top: 1px solid color-mix(in srgb, var(--espresso) 15%, transparent);
+      border-bottom: 1px solid color-mix(in srgb, var(--espresso) 15%, transparent);
+      margin-bottom: 32px;
+    }
+    .fact-label {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.55;
+      margin-bottom: 2px;
+    }
+    .fact-value { font-weight: 600; }
+    h3 {
+      font-family: 'Zilla Slab', Georgia, serif;
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin: 32px 0 12px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      margin: 0 8px 8px 0;
+      font-size: 14px;
+      border: 1px solid;
+    }
+    .method {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      padding: 14px 16px;
+      background: color-mix(in srgb, var(--espresso) 5%, transparent);
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+    .method-time { margin-left: auto; font-size: 13px; opacity: 0.6; white-space: nowrap; }
+    .method-desc { font-size: 14px; opacity: 0.75; margin: 4px 0 0; }
+    #status {
+      padding: 16px;
+      background: color-mix(in srgb, var(--clay) 12%, transparent);
+      border-radius: 6px;
+      font-size: 14px;
+      white-space: pre-wrap;
+    }
+    footer {
+      margin-top: 48px;
+      font-size: 12px;
+      opacity: 0.5;
+      border-top: 1px solid color-mix(in srgb, var(--espresso) 15%, transparent);
+      padding-top: 16px;
+    }
+  </style>
+</head>
+<body>
+  <nav id="switcher" class="switcher" aria-label="All coffees" hidden></nav>
+  <div id="status">Loading from the Storefront API…</div>
+  <div id="app" hidden>
+    <p class="eyebrow">Fieldnote Roasters · Coffee guide</p>
+    <h1 id="title"></h1>
+    <p class="subtitle" id="origin-line"></p>
+    <img class="product-image" id="product-image" alt="" hidden>
+    <p class="soft-note" id="no-config" hidden>No coffee configuration linked to this product yet.</p>
+
+    <div class="facts" id="facts">
+      <div><span class="fact-label">Roast level</span><span class="fact-value" id="roast"></span></div>
+      <div><span class="fact-label">Process</span><span class="fact-value" id="process"></span></div>
+      <div><span class="fact-label">Altitude</span><span class="fact-value" id="altitude"></span></div>
+      <div><span class="fact-label">Harvest</span><span class="fact-value" id="harvest"></span></div>
+    </div>
+
+    <h3 id="notes-heading">Tasting notes</h3>
+    <div id="notes"></div>
+
+    <h3 id="methods-heading">Recommended brewing</h3>
+    <div id="methods"></div>
+  </div>
+
+  <details class="code-reveal">
+    <summary>Show the code — one Storefront API call</summary>
+    <p class="code-caption">POST <span id="endpoint"></span></p>
+    <pre><code id="query-code"></code></pre>
+  </details>
+
+  <footer>
+    Rendered outside Shopify — this page is plain HTML + one Storefront API
+    fetch. Same metaobject, sixth surface.
+  </footer>
+
+  <script>
+    // Token: pass ?token=XXXX in the URL, or hardcode it here before the demo.
+    const SHOP_DOMAIN = 'fieldnote-roasters-demo.myshopify.com';
+    const API_VERSION = '2026-01';
+    const TOKEN = new URLSearchParams(location.search).get('token') || 'e3ec638ad75e2af7be284516610c3f6b';
+    const HANDLE = new URLSearchParams(location.search).get('handle') || 'reserve-roast';
+
+    const QUERY = `
+      query GetCoffeeProduct($handle: String!) {
+        coffees: products(first: 20, sortKey: TITLE) {
+          nodes {
+            handle
+            title
+            config: metafield(namespace: "custom", key: "coffee_configuration") { value }
+          }
+        }
+        product(handle: $handle) {
+          title
+          featuredImage { url altText }
+          metafield(namespace: "custom", key: "coffee_configuration") {
+            reference {
+              ... on Metaobject {
+                roastLevel: field(key: "roast_level") { value }
+                origin: field(key: "origin") { value }
+                processingMethod: field(key: "processing_method") { value }
+                bagType: field(key: "bag_type") { value }
+                altitude: field(key: "altitude") { value }
+                harvest: field(key: "harvest") { value }
+                tastingNotes: field(key: "tasting_notes") {
+                  references(first: 10) {
+                    nodes {
+                      ... on Metaobject {
+                        name: field(key: "name") { value }
+                        icon: field(key: "icon") { value }
+                        color: field(key: "color") { value }
+                      }
+                    }
+                  }
+                }
+                brewingMethods: field(key: "brewing_methods") {
+                  references(first: 10) {
+                    nodes {
+                      ... on Metaobject {
+                        name: field(key: "name") { value }
+                        icon: field(key: "icon") { value }
+                        brewTime: field(key: "brew_time") { value }
+                        description: field(key: "description") { value }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const status = document.getElementById('status');
+    const fail = (msg) => { status.textContent = msg; };
+    const text = (id, v) => { document.getElementById(id).textContent = v || '—'; };
+
+    // "Show the code" — render the real endpoint and query, straight from the constants above.
+    document.getElementById('endpoint').textContent = `https://${SHOP_DOMAIN}/api/${API_VERSION}/graphql.json`;
+    document.getElementById('query-code').textContent =
+      `// headers: { 'X-Shopify-Storefront-Access-Token': '<public token>' }\n` +
+      `// variables: { "handle": "${HANDLE}" }\n` + QUERY.trim();
+
+    fetch(`https://${SHOP_DOMAIN}/api/${API_VERSION}/graphql.json`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Storefront-Access-Token': TOKEN
+      },
+      body: JSON.stringify({ query: QUERY, variables: { handle: HANDLE } })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.errors) return fail('Storefront API error:\n' + JSON.stringify(data.errors, null, 2));
+
+      // Switcher: every product with a coffee configuration, current one highlighted.
+      const coffees = (data.data?.coffees?.nodes || []).filter(c => c.config);
+      if (coffees.length > 1) {
+        const nav = document.getElementById('switcher');
+        coffees.forEach(c => {
+          const link = document.createElement('a');
+          const params = new URLSearchParams(location.search);
+          params.set('handle', c.handle);
+          link.href = '?' + params.toString();
+          link.textContent = c.title;
+          if (c.handle === HANDLE) link.setAttribute('aria-current', 'page');
+          nav.appendChild(link);
+        });
+        nav.hidden = false;
+      }
+
+      const p = data.data && data.data.product;
+      if (!p) return fail(`Product "${HANDLE}" not found. Is it published to the Headless channel?`);
+
+      status.hidden = true;
+      document.getElementById('app').hidden = false;
+
+      text('title', p.title);
+      if (p.featuredImage) {
+        const img = document.getElementById('product-image');
+        img.src = p.featuredImage.url;
+        img.alt = p.featuredImage.altText || p.title;
+        img.hidden = false;
+      }
+
+      const cfg = p.metafield && p.metafield.reference;
+      if (!cfg) {
+        document.getElementById('no-config').hidden = false;
+        document.getElementById('facts').hidden = true;
+        document.getElementById('notes-heading').hidden = true;
+        document.getElementById('methods-heading').hidden = true;
+        return;
+      }
+
+      text('origin-line', cfg.origin && cfg.origin.value);
+      text('roast', cfg.roastLevel && cfg.roastLevel.value);
+      text('process', cfg.processingMethod && cfg.processingMethod.value);
+      text('altitude', cfg.altitude && cfg.altitude.value);
+      text('harvest', cfg.harvest && cfg.harvest.value);
+
+      const notes = cfg.tastingNotes?.references?.nodes || [];
+      const methods = cfg.brewingMethods?.references?.nodes || [];
+      document.getElementById('notes-heading').hidden = notes.length === 0;
+      document.getElementById('methods-heading').hidden = methods.length === 0;
+
+      notes.forEach(n => {
+        const el = document.createElement('span');
+        el.className = 'badge';
+        const color = n.color?.value || '#A0522D';
+        el.style.borderColor = color;
+        el.style.backgroundColor = color + '20';
+        el.textContent = `${n.icon?.value || ''} ${n.name?.value || ''}`.trim();
+        document.getElementById('notes').appendChild(el);
+      });
+
+      methods.forEach(m => {
+        const el = document.createElement('div');
+        el.className = 'method';
+        el.innerHTML = `<strong>${m.icon?.value || ''} ${m.name?.value || ''}</strong>` +
+          (m.description?.value ? `<span class="method-desc">${m.description.value}</span>` : '') +
+          `<span class="method-time">${m.brewTime?.value || ''}</span>`;
+        document.getElementById('methods').appendChild(el);
+      });
+    })
+    .catch(e => fail('Request failed: ' + e.message + '\nCheck the token and that the Headless channel is installed.'));
+  </script>
+</body>
+</html>
