@@ -15,3 +15,6 @@
 # Local demo assets (not theme files)
 demo/*
 docs/*
+
+# Extension-only app (deployed via `shopify app deploy`, not theme push)
+fieldnote-checkout/*
