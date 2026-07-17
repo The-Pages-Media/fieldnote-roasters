@@ -62,7 +62,7 @@ That's the pitch: the data model does the heavy lifting, so every consumer — L
 
 ## The checkout part is one component
 
-[`fieldnote-checkout/`](./fieldnote-checkout/) is an **extension-only app** — no backend, no hosting, Shopify hosts the bundle — with a single checkout UI extension: a last-minute upsell block merchants place in the checkout editor. They pick a variant and an optional heading; the widget queries the Storefront API for that product's `coffee_configuration` metaobject and renders the origin and tasting notes as the offer copy, with the same flat-metafield fallback the theme uses. One tap adds it to the order.
+[`fieldnote-checkout/`](./fieldnote-checkout/) is an **extension-only app** — no backend, no hosting, Shopify hosts the bundle — with a single checkout UI extension: a last-minute upsell block merchants place in the checkout editor. They pick a variant and an optional heading; the widget runs the same traversal as the coffee guide above (product → `coffee_configuration` → referenced `tasting_note` metaobjects) and renders the origin plus each note's icon and name as the offer copy, with the theme's flat-metafield fallback. One tap adds it to the order.
 
 Same metaobject as the PDP, the metaobject pages, and the headless guide — edit the roast data once in admin and the checkout offer updates too. That's the surface theme settings can never reach.
 
