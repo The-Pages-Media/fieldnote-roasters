@@ -1,160 +1,106 @@
-<h1 align="center" style="position: relative;">
-  <br>
-    <img src="./assets/shoppy-x-ray.svg" alt="logo" width="200">
-  <br>
-  Shopify Skeleton Theme
-</h1>
+# Fieldnote Roasters
 
-A minimal, carefully structured Shopify theme designed to help you quickly get started. Designed with modularity, maintainability, and Shopify's best practices in mind.
+**One metaobject, every surface.** The companion repo for *Beyond Theme Settings: The Metaobject Configuration Layer* — a partner talk at Shopify's DotDev 2026 by [Taylor Page](https://thepagesmedia.com).
 
-<p align="center">
+<p>
+  <a href="https://fieldnote-roasters.netlify.app"><img src="https://img.shields.io/badge/live_demo-fieldnote--roasters.netlify.app-A0522D" alt="Live demo"></a>
   <a href="./LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License"></a>
-  <a href="./actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Shopify/skeleton-theme/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://www.netlify.com"><img src="https://www.netlify.com/assets/badges/netlify-badge-color-accent.svg" alt="Deploys by Netlify" height="28"></a>
 </p>
 
-## Getting started
+> ☕ **Fieldnote Roasters is a fictional coffee brand.** There are no beans. The brand, the catalog, and the store exist only to demo what Shopify metaobjects can do.
 
-### Prerequisites
+## What this is
 
-Before starting, ensure you have the latest Shopify CLI installed:
+Most themes bury merchandising data in theme settings, where it's locked to one theme and one surface. This demo makes the opposite argument: model your domain (a coffee, its origin, its tasting notes, how to brew it) as **metaobjects**, connect them to products with a single metafield, and every surface — Liquid storefront, auto-generated metaobject pages, structured data, Flow, and fully headless pages — reads from the same source of truth.
 
-- [Shopify CLI](https://shopify.dev/docs/api/shopify-cli) – helps you download, upload, preview themes, and streamline your workflows
+The demo store models one `coffee_configuration` metaobject per coffee, referencing `tasting_note` and `brewing_method` metaobjects, connected to products via a `custom.coffee_configuration` metafield. Change a roast level once in admin and watch it propagate everywhere.
 
-If you use VS Code:
+**Pick a door at the demo hub → [fieldnote-roasters.netlify.app](https://fieldnote-roasters.netlify.app)**
 
-- [Shopify Liquid VS Code Extension](https://shopify.dev/docs/storefronts/themes/tools/shopify-liquid-vscode) – provides syntax highlighting, linting, inline documentation, and auto-completion specifically designed for Liquid templates
+| Surface | Where |
+| --- | --- |
+| The full storefront (Liquid theme) | [fieldnote-roasters-demo.myshopify.com](https://fieldnote-roasters-demo.myshopify.com) — password `metaobjects` |
+| Product page rendering the metaobject | [/products/reserve-roast](https://fieldnote-roasters-demo.myshopify.com/products/reserve-roast) |
+| Auto-generated metaobject pages | [/pages/coffee/reserve-roast](https://fieldnote-roasters-demo.myshopify.com/pages/coffee/reserve-roast) |
+| Headless coffee guide (outside Shopify) | [fieldnote-roasters.netlify.app/coffee-guide](https://fieldnote-roasters.netlify.app/coffee-guide/) |
+| Slides from the talk | [/slides.pdf](https://fieldnote-roasters.netlify.app/slides.pdf) |
 
-### Clone
+## The headless part is one file
 
-Clone this repository using Git or Shopify CLI:
+The [coffee guide](./demo/headless/coffee-guide/index.html) is the whole point made small: plain HTML, no framework, no build step — one `fetch` to the Storefront API pulling the same metaobject the theme renders. The query traverses product → metafield → metaobject → referenced metaobjects in a single request:
 
-```bash
-git clone git@github.com:Shopify/skeleton-theme.git
-# or
-shopify theme init
+```graphql
+query GetCoffeeProduct($handle: String!) {
+  product(handle: $handle) {
+    title
+    metafield(namespace: "custom", key: "coffee_configuration") {
+      reference {
+        ... on Metaobject {
+          roastLevel: field(key: "roast_level") { value }
+          origin: field(key: "origin") { value }
+          tastingNotes: field(key: "tasting_notes") {
+            references(first: 10) {
+              nodes {
+                ... on Metaobject {
+                  name: field(key: "name") { value }
+                  icon: field(key: "icon") { value }
+                  color: field(key: "color") { value }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
 ```
 
-### Preview
+That's the pitch: the data model does the heavy lifting, so every consumer — Liquid or headless — gets simpler.
 
-Preview this theme using Shopify CLI:
+## How it was built
+
+This was treated as a greenfield project from day one, with AI in the loop at every step:
+
+1. **Design spec first.** A written brand/design spec for a fictional single-origin coffee company — voice ("observation over ornament"), palette (Paper `#F4EDDF`, Espresso `#2A1E16`, Clay `#A0522D`), type (Zilla Slab + Work Sans).
+2. **Claude designed the brand.** The spec went to Claude to build out the full brand identity — wordmark, bag design, photography direction, and storefront mockups for a coffee brand that does not exist.
+3. **Claude Code built the store.** Back in the terminal, Claude Code took Shopify's [Skeleton theme](https://github.com/Shopify/skeleton-theme) as the starting point and built the theme out against the brand spec — sections, blocks, snippets, and the metaobject rendering — following Skeleton's conventions (`{% schema %}`, `{% stylesheet %}`, LiquidDoc headers).
+4. **Modeled the data in admin.** Metaobject definitions (`coffee_configuration`, `tasting_note`, `brewing_method`), the `custom.coffee_configuration` product metafield connection, and a small demo catalog. The step-by-step build is documented in [docs/build-guide-rehearsal.md](./docs/build-guide-rehearsal.md).
+5. **Netlify for everything outside Shopify.** The demo hub and headless coffee guide are static files in [`demo/headless/`](./demo/headless/). [`netlify.toml`](./netlify.toml) points Netlify's publish directory straight at that folder — no build step, and any push to `main` that touches the demo redeploys it automatically (everything else, like theme-editor sync commits, is skipped).
+
+## Repo tour
+
+```
+.
+├── assets/          # critical.css (design tokens), self-hosted fonts, static assets
+├── blocks/          # Reusable theme blocks
+├── config/          # Theme settings schema + data
+├── demo/headless/   # The Netlify site: demo hub + headless coffee guide
+├── docs/            # Build guide, catalog notes, admin punch list
+├── layout/          # theme.liquid
+├── locales/         # Translations
+├── sections/        # Hero, product, collection, footer, etc.
+├── snippets/        # product-card, css-variables, image, meta-tags
+├── templates/       # JSON templates
+└── netlify.toml     # Publishes demo/headless, skips non-demo commits
+```
+
+## Run it locally
+
+The theme half needs the [Shopify CLI](https://shopify.dev/docs/api/shopify-cli):
 
 ```bash
 shopify theme dev
 ```
 
-## Theme architecture
+The headless half needs nothing — open `demo/headless/index.html` in a browser, or serve the folder with any static server. The coffee guide accepts `?token=` and `?handle=` query params if you want to point it at your own store's Storefront API.
 
-```bash
-.
-├── assets          # Stores static assets (CSS, JS, images, fonts, etc.)
-├── blocks          # Reusable, nestable, customizable UI components
-├── config          # Global theme settings and customization options
-├── layout          # Top-level wrappers for pages (layout templates)
-├── locales         # Translation files for theme internationalization
-├── sections        # Modular full-width page components
-├── snippets        # Reusable Liquid code or HTML fragments
-└── templates       # Templates combining sections to define page structures
-```
+## Credits
 
-To learn more, refer to the [theme architecture documentation](https://shopify.dev/docs/storefronts/themes/architecture).
+- Built on Shopify's [Skeleton theme](https://github.com/Shopify/skeleton-theme) (MIT).
+- Brand identity designed with Claude; theme and demo built with [Claude Code](https://claude.com/claude-code).
+- Hosted on [Netlify](https://www.netlify.com).
+- More from Taylor at [shopdevalliance.com](https://shopdevalliance.com) · [thepagesmedia.com](https://thepagesmedia.com).
 
-### Templates
-
-[Templates](https://shopify.dev/docs/storefronts/themes/architecture/templates#template-types) control what's rendered on each type of page in a theme.
-
-The Skeleton Theme scaffolds [JSON templates](https://shopify.dev/docs/storefronts/themes/architecture/templates/json-templates) to make it easy for merchants to customize their store.
-
-None of the template types are required, and not all of them are included in the Skeleton Theme. Refer to the [template types reference](https://shopify.dev/docs/storefronts/themes/architecture/templates#template-types) for a full list.
-
-### Sections
-
-[Sections](https://shopify.dev/docs/storefronts/themes/architecture/sections) are Liquid files that allow you to create reusable modules of content that can be customized by merchants. They can also include blocks which allow merchants to add, remove, and reorder content within a section.
-
-Sections are made customizable by including a `{% schema %}` in the body. For more information, refer to the [section schema documentation](https://shopify.dev/docs/storefronts/themes/architecture/sections/section-schema).
-
-### Blocks
-
-[Blocks](https://shopify.dev/docs/storefronts/themes/architecture/blocks) let developers create flexible layouts by breaking down sections into smaller, reusable pieces of Liquid. Each block has its own set of settings, and can be added, removed, and reordered within a section.
-
-Blocks are made customizable by including a `{% schema %}` in the body. For more information, refer to the [block schema documentation](https://shopify.dev/docs/storefronts/themes/architecture/blocks/theme-blocks/schema).
-
-## Schemas
-
-When developing components defined by schema settings, we recommend these guidelines to simplify your code:
-
-- **Single property settings**: For settings that correspond to a single CSS property, use CSS variables:
-
-  ```liquid
-  <div class="collection" style="--gap: {{ block.settings.gap }}px">
-    ...
-  </div>
-
-  {% stylesheet %}
-    .collection {
-      gap: var(--gap);
-    }
-  {% endstylesheet %}
-
-  {% schema %}
-  {
-    "settings": [{
-      "type": "range",
-      "label": "gap",
-      "id": "gap",
-      "min": 0,
-      "max": 100,
-      "unit": "px",
-      "default": 0,
-    }]
-  }
-  {% endschema %}
-  ```
-
-- **Multiple property settings**: For settings that control multiple CSS properties, use CSS classes:
-
-  ```liquid
-  <div class="collection {{ block.settings.layout }}">
-    ...
-  </div>
-
-  {% stylesheet %}
-    .collection--full-width {
-      /* multiple styles */
-    }
-    .collection--narrow {
-      /* multiple styles */
-    }
-  {% endstylesheet %}
-
-  {% schema %}
-  {
-    "settings": [{
-      "type": "select",
-      "id": "layout",
-      "label": "layout",
-      "values": [
-        { "value": "collection--full-width", "label": "t:options.full" },
-        { "value": "collection--narrow", "label": "t:options.narrow" }
-      ]
-    }]
-  }
-  {% endschema %}
-  ```
-
-## CSS & JavaScript
-
-For CSS and JavaScript, we recommend using the [`{% stylesheet %}`](https://shopify.dev/docs/api/liquid/tags#stylesheet) and [`{% javascript %}`](https://shopify.dev/docs/api/liquid/tags/javascript) tags. They can be included multiple times, but the code will only appear once.
-
-### `critical.css`
-
-The Skeleton Theme explicitly separates essential CSS necessary for every page into a dedicated `critical.css` file.
-
-## Contributing
-
-We're excited for your contributions to the Skeleton Theme! This repository aims to remain as lean, lightweight, and fundamental as possible, and we kindly ask your contributions to align with this intention.
-
-Visit our [CONTRIBUTING.md](./CONTRIBUTING.md) for a detailed overview of our process, guidelines, and recommendations.
-
-## License
-
-Skeleton Theme is open-sourced under the [MIT](./LICENSE.md) License.
+Open-sourced under the [MIT license](./LICENSE.md).
