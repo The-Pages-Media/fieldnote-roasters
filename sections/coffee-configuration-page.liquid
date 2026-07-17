@@ -17,6 +17,25 @@
 %}
 
 <div class="config-page">
+  {% liquid
+    assign all_entries = metaobjects.coffee_configuration.values
+  %}
+  {% if all_entries.size > 1 %}
+    <nav class="config-page__switcher" aria-label="{{ 'metaobjects.all_configurations' | t }}">
+      {% for entry in all_entries %}
+        <a
+          href="{{ entry.system.url }}"
+          class="pill config-page__switcher-link{% if entry.system.id == metaobject.system.id %} config-page__switcher-link--current{% endif %}"
+          {% if entry.system.id == metaobject.system.id %}
+            aria-current="page"
+          {% endif %}
+        >
+          {{- entry.name.value | default: entry.system.handle -}}
+        </a>
+      {% endfor %}
+    </nav>
+  {% endif %}
+
   <p class="eyebrow">{{ 'metaobjects.configuration' | t }}</p>
   <h1 class="config-page__title">{{ config_name }}</h1>
   {% if metaobject.origin.value != blank %}
@@ -109,6 +128,27 @@
 {% stylesheet %}
   .config-page {
     padding-block: 3.75rem 4.5rem;
+  }
+
+  .config-page__switcher {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .config-page__switcher-link {
+    text-decoration: none;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+  }
+
+  .config-page__switcher-link:hover {
+    border-color: var(--color-accent);
+  }
+
+  .config-page__switcher-link--current {
+    border-color: var(--color-accent);
+    background: color-mix(in srgb, var(--color-accent) 10%, transparent);
   }
 
   .config-page__title {

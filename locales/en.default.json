@@ -73,7 +73,8 @@
   "metaobjects": {
     "configuration": "Coffee configuration",
     "roast_level": "Roast level",
-    "appears_on": "Appears on"
+    "appears_on": "Appears on",
+    "all_configurations": "All coffee configurations"
   },
   "general": {
     "navigation": "Main navigation",

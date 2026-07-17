@@ -50,6 +50,28 @@
       opacity: 0.75;
     }
     [hidden] { display: none !important; }
+    .switcher {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 32px;
+    }
+    .switcher a {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--espresso) 25%, transparent);
+      color: var(--espresso);
+      text-decoration: none;
+      font-size: 13px;
+      transition: border-color 0.15s ease, background-color 0.15s ease;
+    }
+    .switcher a:hover { border-color: var(--clay); }
+    .switcher a[aria-current="page"] {
+      border-color: var(--clay);
+      background: color-mix(in srgb, var(--clay) 12%, transparent);
+      font-weight: 600;
+    }
     .code-reveal {
       margin-top: 48px;
       border: 1px solid color-mix(in srgb, var(--espresso) 15%, transparent);
@@ -147,6 +169,7 @@
   </style>
 </head>
 <body>
+  <nav id="switcher" class="switcher" aria-label="All coffees" hidden></nav>
   <div id="status">Loading from the Storefront API…</div>
   <div id="app" hidden>
     <p class="eyebrow">Fieldnote Roasters · Coffee guide</p>
@@ -189,6 +212,13 @@
 
     const QUERY = `
       query GetCoffeeProduct($handle: String!) {
+        coffees: products(first: 20, sortKey: TITLE) {
+          nodes {
+            handle
+            title
+            config: metafield(namespace: "custom", key: "coffee_configuration") { value }
+          }
+        }
         product(handle: $handle) {
           title
           featuredImage { url altText }
@@ -252,6 +282,23 @@
     .then(r => r.json())
     .then(data => {
       if (data.errors) return fail('Storefront API error:\n' + JSON.stringify(data.errors, null, 2));
+
+      // Switcher: every product with a coffee configuration, current one highlighted.
+      const coffees = (data.data?.coffees?.nodes || []).filter(c => c.config);
+      if (coffees.length > 1) {
+        const nav = document.getElementById('switcher');
+        coffees.forEach(c => {
+          const link = document.createElement('a');
+          const params = new URLSearchParams(location.search);
+          params.set('handle', c.handle);
+          link.href = '?' + params.toString();
+          link.textContent = c.title;
+          if (c.handle === HANDLE) link.setAttribute('aria-current', 'page');
+          nav.appendChild(link);
+        });
+        nav.hidden = false;
+      }
+
       const p = data.data && data.data.product;
       if (!p) return fail(`Product "${HANDLE}" not found. Is it published to the Headless channel?`);
 
