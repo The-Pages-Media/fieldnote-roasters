@@ -12,7 +12,7 @@
 
 ## What this is
 
-Most themes bury merchandising data in theme settings, where it's locked to one theme and one surface. This demo makes the opposite argument: model your domain (a coffee, its origin, its tasting notes, how to brew it) as **metaobjects**, connect them to products with a single metafield, and every surface — Liquid storefront, auto-generated metaobject pages, structured data, Flow, and fully headless pages — reads from the same source of truth.
+Most themes bury merchandising data in theme settings, where it's locked to one theme and one surface. This demo makes the opposite argument: model your domain (a coffee, its origin, its tasting notes, how to brew it) as **metaobjects**, connect them to products with a single metafield, and every surface — Liquid storefront, auto-generated metaobject pages, structured data, Flow, checkout, and fully headless pages — reads from the same source of truth.
 
 The demo store models one `coffee_configuration` metaobject per coffee, referencing `tasting_note` and `brewing_method` metaobjects, connected to products via a `custom.coffee_configuration` metafield. Change a roast level once in admin and watch it propagate everywhere.
 
@@ -24,6 +24,7 @@ The demo store models one `coffee_configuration` metaobject per coffee, referenc
 | Product page rendering the metaobject | [/products/reserve-roast](https://fieldnote-roasters-demo.myshopify.com/products/reserve-roast) |
 | Auto-generated metaobject pages | [/pages/coffee/reserve-roast](https://fieldnote-roasters-demo.myshopify.com/pages/coffee/reserve-roast) |
 | Headless coffee guide (outside Shopify) | [fieldnote-roasters.netlify.app/coffee-guide](https://fieldnote-roasters.netlify.app/coffee-guide/) |
+| Checkout upsell reading the metaobject | Add a coffee to the cart on the demo store and head to checkout |
 | Slides from the talk | [/slides.pdf](https://fieldnote-roasters.netlify.app/slides.pdf) |
 
 ## The headless part is one file
@@ -59,6 +60,12 @@ query GetCoffeeProduct($handle: String!) {
 
 That's the pitch: the data model does the heavy lifting, so every consumer — Liquid or headless — gets simpler.
 
+## The checkout part is one component
+
+[`fieldnote-checkout/`](./fieldnote-checkout/) is an **extension-only app** — no backend, no hosting, Shopify hosts the bundle — with a single checkout UI extension: a last-minute upsell block merchants place in the checkout editor. They pick a variant and an optional heading; the widget queries the Storefront API for that product's `coffee_configuration` metaobject and renders the origin and tasting notes as the offer copy, with the same flat-metafield fallback the theme uses. One tap adds it to the order.
+
+Same metaobject as the PDP, the metaobject pages, and the headless guide — edit the roast data once in admin and the checkout offer updates too. That's the surface theme settings can never reach.
+
 ## How it was built
 
 This was treated as a greenfield project from day one, with AI in the loop at every step:
@@ -78,6 +85,7 @@ This was treated as a greenfield project from day one, with AI in the loop at ev
 ├── config/          # Theme settings schema + data
 ├── demo/headless/   # The Netlify site: demo hub + headless coffee guide
 ├── docs/            # Build guide, catalog notes, admin punch list
+├── fieldnote-checkout/  # Extension-only app: checkout upsell reading the metaobject
 ├── layout/          # theme.liquid
 ├── locales/         # Translations
 ├── sections/        # Hero, product, collection, footer, etc.
@@ -92,6 +100,14 @@ The theme half needs the [Shopify CLI](https://shopify.dev/docs/api/shopify-cli)
 
 ```bash
 shopify theme dev
+```
+
+The checkout extension is its own app with its own CLI context — run it from inside its folder:
+
+```bash
+cd fieldnote-checkout
+shopify app dev     # live preview in checkout
+shopify app deploy  # release a version (then install on the store from the dev dashboard)
 ```
 
 The headless half needs nothing — open `demo/headless/index.html` in a browser, or serve the folder with any static server. The coffee guide accepts `?token=` and `?handle=` query params if you want to point it at your own store's Storefront API.

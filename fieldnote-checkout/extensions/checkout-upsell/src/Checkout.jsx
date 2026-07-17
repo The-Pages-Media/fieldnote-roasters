@@ -29,7 +29,15 @@ function Extension() {
                   reference {
                     ... on Metaobject {
                       origin: field(key: "origin") { value }
-                      notes: field(key: "tasting_notes") { value }
+                      notes: field(key: "tasting_notes") {
+                        references(first: 10) {
+                          nodes {
+                            ... on Metaobject {
+                              name: field(key: "name") { value }
+                            }
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -56,9 +64,15 @@ function Extension() {
   const config = offer.product.config?.reference;
   const image = offer.image?.url ?? offer.product.featuredImage?.url;
   const subtitle = config?.origin?.value || offer.product.subtitle?.value;
-  const notes = formatNotes(
-    config?.notes?.value ?? offer.product.flatNotes?.value,
-  );
+
+  // tasting_notes is a list of tasting_note metaobject references — render
+  // their name fields. Flat custom.tasting_notes text is the fallback.
+  const noteNames = (config?.notes?.references?.nodes ?? [])
+    .map((node) => node.name?.value)
+    .filter(Boolean);
+  const notes = noteNames.length
+    ? noteNames.join(' · ')
+    : formatNotes(offer.product.flatNotes?.value);
   const price = shopify.i18n.formatCurrency(Number(offer.price.amount), {
     currency: offer.price.currencyCode,
   });
