@@ -34,6 +34,7 @@ function Extension() {
                           nodes {
                             ... on Metaobject {
                               name: field(key: "name") { value }
+                              icon: field(key: "icon") { value }
                             }
                           }
                         }
@@ -68,10 +69,15 @@ function Extension() {
   // tasting_notes is a list of tasting_note metaobject references — render
   // their name fields. Flat custom.tasting_notes text is the fallback.
   const noteNames = (config?.notes?.references?.nodes ?? [])
-    .map((node) => node.name?.value)
+    .map((node) => {
+      const name = node.name?.value;
+      if (!name) return null;
+      const icon = node.icon?.value;
+      return icon ? `${icon} ${name}` : name;
+    })
     .filter(Boolean);
   const notes = noteNames.length
-    ? noteNames.join(' · ')
+    ? noteNames.join('  ·  ')
     : formatNotes(offer.product.flatNotes?.value);
   const price = shopify.i18n.formatCurrency(Number(offer.price.amount), {
     currency: offer.price.currencyCode,
@@ -101,19 +107,15 @@ function Extension() {
           {shopify.i18n.translate('addFailed')}
         </s-banner>
       )}
-      <s-grid
-        grid-template-columns="auto 1fr auto"
-        gap="base"
-        align-items="center"
-      >
+      <s-grid gridTemplateColumns="auto 1fr auto" gap="base" alignItems="center">
         {image && <s-product-thumbnail src={image} />}
         <s-stack direction="block" gap="small-200">
           <s-text type="strong">{offer.product.title}</s-text>
           {subtitle && <s-text color="subdued">{subtitle}</s-text>}
           {notes && <s-text color="subdued">{notes}</s-text>}
         </s-stack>
-        <s-stack direction="block" gap="small-200" align-items="end">
-          <s-text>{price}</s-text>
+        <s-stack direction="block" gap="small-200" alignItems="end">
+          <s-text type="strong">{price}</s-text>
           <s-button onClick={addToOrder} loading={adding} disabled={inCart}>
             {inCart
               ? shopify.i18n.translate('added')
