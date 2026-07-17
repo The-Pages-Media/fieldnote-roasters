@@ -1,0 +1,7 @@
+[build]
+  publish = "demo/headless"
+  # Static site, no build step.
+  command = ""
+  # Skip deploys for commits that don't touch the demo (e.g. "Update from
+  # Shopify" theme-editor pushes). Exit 0 = skip, exit 1 = build.
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- demo/headless netlify.toml"
