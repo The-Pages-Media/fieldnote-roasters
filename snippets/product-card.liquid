@@ -84,7 +84,8 @@
     <a href="{{ product.url }}" class="product-card__title">{{ product.title | escape }}</a>
     <span class="product-card__price">
       {%- if product.price_varies -%}
-        {{ 'products.price_from' | t: price: product.price_min | money_without_trailing_zeros }}
+        {%- assign min_price = product.price_min | money_without_trailing_zeros -%}
+        {{ 'products.price_from' | t: price: min_price }}
       {%- else -%}
         {{ product.price | money_without_trailing_zeros }}
       {%- endif -%}
