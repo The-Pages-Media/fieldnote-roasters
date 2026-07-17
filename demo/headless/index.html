@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Fieldnote Roasters · Demo hub</title>
+  <title>Fieldnote Roasters · DotDev 2026 demo</title>
+  <meta name="description" content="Live demo hub for a DotDev 2026 talk on using metaobjects as Shopify's configuration layer.">
   <style>
     :root {
       --paper: #F4EDDF;
@@ -116,6 +117,8 @@
       border-top: 1px solid color-mix(in srgb, var(--espresso) 15%, transparent);
       padding-top: 16px;
     }
+    footer .attribution { margin: 12px 0 0; }
+    footer a { color: var(--clay); }
   </style>
 </head>
 <body>
@@ -156,9 +159,21 @@
     <span class="url">fieldnote-roasters.netlify.app/coffee-guide</span>
   </a>
 
+  <a class="card" href="/slides.pdf">
+    <h2>Slides</h2>
+    <p>The deck from the talk. Diagrams, decision framework, community references.</p>
+    <span class="url">/slides.pdf</span>
+  </a>
+
   <footer>
     Every surface above reads from the same coffee_configuration metaobject.
     Change it once in admin — watch it update everywhere.
+    <p class="attribution">
+      Built by Taylor Page for a DotDev 2026 partner talk on using metaobjects as
+      Shopify's configuration layer. More at
+      <a href="https://liquidweekly.com">liquidweekly.com</a> ·
+      <a href="https://thepagesmedia.com">thepagesmedia.com</a>.
+    </p>
   </footer>
 
   <script>
