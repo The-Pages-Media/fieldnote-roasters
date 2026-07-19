@@ -41,6 +41,12 @@ name = "Heading"
 description = "Shown above the offer. Leave blank for the default."
 
 [[extensions.settings.fields]]
+key = "promo_message"
+type = "single_line_text_field"
+name = "Promotional message"
+description = "Shown under the heading. Leave blank to hide."
+
+[[extensions.settings.fields]]
 key = "offer_variant"
 type = "variant_reference"
 name = "Product to offer"

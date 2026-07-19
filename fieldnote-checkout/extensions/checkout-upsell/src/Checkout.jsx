@@ -7,7 +7,11 @@ export default async () => {
 };
 
 function Extension() {
-  const {heading, offer_variant: variantId} = shopify.settings.value;
+  const {
+    heading,
+    promo_message: promoMessage,
+    offer_variant: variantId,
+  } = shopify.settings.value;
   const [offer, setOffer] = useState(null);
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState(false);
@@ -28,6 +32,8 @@ function Extension() {
                 config: metafield(namespace: "custom", key: "coffee_configuration") {
                   reference {
                     ... on Metaobject {
+                      handle
+                      name: field(key: "name") { value }
                       origin: field(key: "origin") { value }
                       notes: field(key: "tasting_notes") {
                         references(first: 10) {
@@ -83,6 +89,11 @@ function Extension() {
     currency: offer.price.currencyCode,
   });
 
+  // The offer variant may be a stand-in (e.g. a "mystery coffee") whose
+  // coffee_configuration metaobject points at the real coffee. Stamp that
+  // coffee's name on the line so the order shows what was actually picked.
+  const coffeeName = config?.name?.value || config?.handle;
+
   async function addToOrder() {
     setAdding(true);
     setError(false);
@@ -90,6 +101,7 @@ function Extension() {
       type: 'addCartLine',
       merchandiseId: offer.id,
       quantity: 1,
+      ...(coffeeName && {attributes: [{key: 'Coffee', value: coffeeName}]}),
     });
     setAdding(false);
     if (result.type === 'error') {
@@ -102,6 +114,7 @@ function Extension() {
       <s-heading>
         {heading || shopify.i18n.translate('defaultHeading')}
       </s-heading>
+      {promoMessage && <s-text color="subdued">{promoMessage}</s-text>}
       {error && (
         <s-banner tone="critical">
           {shopify.i18n.translate('addFailed')}
