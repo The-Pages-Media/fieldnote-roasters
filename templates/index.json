@@ -76,12 +76,21 @@
         "link_label": "Read our sourcing notes",
         "link": ""
       }
+    },
+    "featured_collection_nbkLYN": {
+      "type": "featured-collection",
+      "settings": {
+        "heading": "Our best house blends",
+        "collection": "blends",
+        "products_to_show": 3
+      }
     }
   },
   "order": [
     "hero",
     "feature_strip",
     "featured_collection",
-    "editorial_band"
+    "editorial_band",
+    "featured_collection_nbkLYN"
   ]
 }
