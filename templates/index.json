@@ -18,9 +18,9 @@
         "text": "Single-origin coffee, sourced transparently and roasted in small batches. Each lot documented — origin, process, altitude, harvest.",
         "image": "shopify://shop_images/ChatGPT_Image_Jul_9_2026_06_57_04_AM_10.png",
         "primary_cta_label": "Shop Reserve Roast",
-        "primary_cta_link": "",
-        "secondary_cta_label": "Explore origins",
-        "secondary_cta_link": ""
+        "primary_cta_link": "shopify://products/reserve-roast",
+        "secondary_cta_label": "Explore",
+        "secondary_cta_link": "shopify://collections/all"
       }
     },
     "feature_strip": {
