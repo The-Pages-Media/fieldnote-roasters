@@ -110,6 +110,9 @@
         "sourcing",
         "shipping"
       ],
+      "custom_css": [
+        ".pdp__option{margin: 1rem 0;}"
+      ],
       "settings": {}
     },
     "related": {
