@@ -110,33 +110,35 @@ function Extension() {
   }
 
   return (
-    <s-stack direction="block" gap="base">
-      <s-heading>
-        {heading || shopify.i18n.translate('defaultHeading')}
-      </s-heading>
-      {promoMessage && <s-text color="subdued">{promoMessage}</s-text>}
-      {error && (
-        <s-banner tone="critical">
-          {shopify.i18n.translate('addFailed')}
-        </s-banner>
-      )}
-      <s-grid gridTemplateColumns="auto 1fr auto" gap="base" alignItems="center">
-        {image && <s-product-thumbnail src={image} />}
-        <s-stack direction="block" gap="small-200">
-          <s-text type="strong">{offer.product.title}</s-text>
-          {subtitle && <s-text color="subdued">{subtitle}</s-text>}
-          {notes && <s-text color="subdued">{notes}</s-text>}
-        </s-stack>
-        <s-stack direction="block" gap="small-200" alignItems="end">
-          <s-text type="strong">{price}</s-text>
-          <s-button onClick={addToOrder} loading={adding} disabled={inCart}>
-            {inCart
-              ? shopify.i18n.translate('added')
-              : shopify.i18n.translate('add')}
-          </s-button>
-        </s-stack>
-      </s-grid>
-    </s-stack>
+    <s-box background="subdued" border="base" borderRadius="base" padding="base">
+      <s-stack direction="block" gap="base">
+        <s-heading>
+          {heading || shopify.i18n.translate('defaultHeading')}
+        </s-heading>
+        {promoMessage && <s-text color="subdued">{promoMessage}</s-text>}
+        {error && (
+          <s-banner tone="critical">
+            {shopify.i18n.translate('addFailed')}
+          </s-banner>
+        )}
+        <s-grid gridTemplateColumns="auto 1fr auto" gap="base" alignItems="center">
+          {image && <s-product-thumbnail src={image} />}
+          <s-stack direction="block" gap="small-200">
+            <s-text type="strong">{offer.product.title}</s-text>
+            {subtitle && <s-text color="subdued">{subtitle}</s-text>}
+            {notes && <s-text color="subdued">{notes}</s-text>}
+          </s-stack>
+          <s-stack direction="block" gap="small-200" alignItems="end">
+            <s-text type="strong">{price}</s-text>
+            <s-button onClick={addToOrder} loading={adding} disabled={inCart}>
+              {inCart
+                ? shopify.i18n.translate('added')
+                : shopify.i18n.translate('add')}
+            </s-button>
+          </s-stack>
+        </s-grid>
+      </s-stack>
+    </s-box>
   );
 }
 
