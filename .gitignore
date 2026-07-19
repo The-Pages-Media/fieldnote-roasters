@@ -12,6 +12,9 @@ node_modules/
 # Shopify CLI files
 .shopify/
 
+# Wrangler local state
+.wrangler/
+
 ## Release files
 release
 *.zip
