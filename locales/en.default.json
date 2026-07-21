@@ -74,7 +74,12 @@
     "configuration": "Coffee configuration",
     "roast_level": "Roast level",
     "appears_on": "Appears on",
-    "all_configurations": "All coffee configurations"
+    "all_configurations": "All coffee configurations",
+    "surface_banner": {
+      "you_are_on": "You are on",
+      "label": "Metaobject page",
+      "detail": "This entry rendered as its own page by Liquid, on the Shopify storefront"
+    }
   },
   "general": {
     "navigation": "Main navigation",

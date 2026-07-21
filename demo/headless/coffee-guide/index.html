@@ -28,6 +28,41 @@
       color: var(--clay);
       margin: 0 0 8px;
     }
+    .surface-banner {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 6px 10px;
+      width: 100vw;
+      margin: -48px calc(50% - 50vw) 36px;
+      padding: 10px 24px;
+      background: var(--espresso);
+      color: var(--paper);
+      text-align: center;
+    }
+    .surface-banner__eyebrow {
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: color-mix(in srgb, var(--clay) 70%, var(--paper));
+    }
+    .surface-banner__label {
+      font-family: 'Zilla Slab', Georgia, serif;
+      font-weight: 600;
+      font-size: 15px;
+      letter-spacing: 0.02em;
+    }
+    .surface-banner__detail {
+      font-size: 12px;
+      opacity: 0.7;
+    }
+    @media (max-width: 749px) {
+      .surface-banner__detail { display: none; }
+    }
     .back-link {
       display: inline-block;
       margin-bottom: 24px;
@@ -182,6 +217,11 @@
   </style>
 </head>
 <body>
+  <div class="surface-banner" role="note">
+    <span class="surface-banner__eyebrow">You are on</span>
+    <span class="surface-banner__label">Storefront API product page</span>
+    <span class="surface-banner__detail">Plain HTML outside Shopify — one GraphQL call, same metaobject</span>
+  </div>
   <a class="back-link" href="/">← Back to the demo hub</a>
   <nav id="switcher" class="switcher" aria-label="All coffees" hidden></nav>
   <div id="status">Loading from the Storefront API…</div>
